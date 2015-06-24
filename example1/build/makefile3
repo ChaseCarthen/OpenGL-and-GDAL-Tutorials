@@ -1,0 +1,4 @@
+all: ../src/main.cpp
+	 g++ -framework GLUT -framework OpenGL -framework Cocoa ../src/main.cpp -o ../bin/cube2
+clean:
+	rm bin/* 
