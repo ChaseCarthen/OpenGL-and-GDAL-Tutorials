@@ -7,12 +7,20 @@
 #include <iostream>
 #include <buffer.h>
 #include <triangle.h>
-using namespace std;
+#include <gishandler.h>
+#include <vector>
+#include <camera.h>
+#include <chrono>
+#include <terrain.h>
 
+using namespace std;
+using namespace chrono;
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-float Vertices[9] = {0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0};
+string fname = "../data/1m_DTM.tif";
+terrain Terrain(fname);
+float Vertices[9] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0};
 
 bool QUIT = false;
 
@@ -23,7 +31,8 @@ bool init();
 bool initGL();
 
 //Input handler
-void handleKeys( unsigned char key, int x, int y );
+void handleKeys( unsigned char key, int x, int y )
+{};
 
 //Per frame update
 void update();
@@ -46,8 +55,15 @@ bool gRenderQuad = true;
 GLuint VBO;
 GLint VaoId;
 
+high_resolution_clock::time_point current;
+
 buffer buf;
+buffer elements;
+buffer terrainpoints;
 triangle Tri;
+
+camera Camera;
+
 bool init()
 {
 
@@ -55,7 +71,7 @@ bool init()
 	bool success = true;
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+	if ( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		success = false;
@@ -66,9 +82,12 @@ bool init()
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
+		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
+		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
 		//Create window
 		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
-		if( gWindow == NULL )
+		if ( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 			success = false;
@@ -77,7 +96,7 @@ bool init()
 		{
 			//Create context
 			gContext = SDL_GL_CreateContext( gWindow );
-			if( gContext == NULL )
+			if ( gContext == NULL )
 			{
 				printf( "OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
 				success = false;
@@ -85,13 +104,13 @@ bool init()
 			else
 			{
 				//Use Vsync
-				if( SDL_GL_SetSwapInterval( 1 ) < 0 )
+				if ( SDL_GL_SetSwapInterval( 1 ) < 0 )
 				{
 					printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
 				}
 
 				//Initialize OpenGL
-				if( !initGL() )
+				if ( !initGL() )
 				{
 					printf( "Unable to initialize OpenGL!\n" );
 					success = false;
@@ -107,14 +126,14 @@ bool init()
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-    //buf.generateBuffer(GL_ARRAY_BUFFER);
-    //buf.bindBuffer();
-    //buf.allocateBufferData(sizeof(Vertices),Vertices,GL_STATIC_DRAW);
+	//buf.generateBuffer(GL_ARRAY_BUFFER);
+	//buf.bindBuffer();
+	//buf.allocateBufferData(sizeof(Vertices),Vertices,GL_STATIC_DRAW);
 
 	//glGenBuffers(1, &VBO);
 	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3, Vertices, GL_STATIC_DRAW);
-    Tri.setup();
+	Tri.setup();
 
 	return success;
 }
@@ -124,26 +143,26 @@ bool initGL()
 	GLenum error = GL_NO_ERROR;
 	bool success = true;
 	//Initialize clear color
-	glClearColor( 1.f, 0.f, 0.f, 1.f );
-	
+	glClearColor( 0.f, 0.f, 1.f, 1.f );
+
 	//Check for error
 	error = glGetError();
-	if( error != GL_NO_ERROR )
+	if ( error != GL_NO_ERROR )
 	{
 		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 		success = false;
 	}
 	return success;
-	
-	
+
+
 
 	//Initialize Projection Matrix
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
-	
+
 	//Check for error
 	error = glGetError();
-	if( error != GL_NO_ERROR )
+	if ( error != GL_NO_ERROR )
 	{
 		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 		success = false;
@@ -155,42 +174,30 @@ bool initGL()
 
 	//Check for error
 	error = glGetError();
-	if( error != GL_NO_ERROR )
+	if ( error != GL_NO_ERROR )
 	{
 		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 		success = false;
 	}
-	
+
 	//Initialize clear color
-	glClearColor( 1.f, 0.f, 0.f, 1.f );
-	
+	glClearColor( 0.f, 0.f, 1.f, 1.f );
+
 	//Check for error
 	error = glGetError();
-	if( error != GL_NO_ERROR )
+	if ( error != GL_NO_ERROR )
 	{
 		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 		success = false;
 	}
-	
-	return success;
-}
 
-void handleKeys( unsigned char key, int x, int y )
-{
-	//Toggle quad
-	if( key == 'q' )
-	{
-		gRenderQuad = !gRenderQuad;
-	}
-	else if( key == 'a')
-	{
-		QUIT = true;
-	}
+	return success;
 }
 
 void update()
 {
 	//No per frame update needed
+	cout << "HELLO" << endl;
 }
 
 void render()
@@ -199,25 +206,33 @@ void render()
 
 	//Clear color buffer
 	//glClearColor( 1.f, 0.f, 0.f, 1.f );
-	glClear( GL_COLOR_BUFFER_BIT );
-	glClearColor( 1.f, 0.f, 0.f, 1.f );
-	Tri.render();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);	
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glClearColor( 0.f, 0.f, 0.5f, 0.f );
+	glm::mat4 view = Camera.getView();
+	glm::mat4 projection = Camera.getProjection();
+	Tri.render(view, projection);
+	Terrain.render(view, projection);
 	return;
 	//Render quad
-	if( gRenderQuad )
+	if ( gRenderQuad )
 	{
 		glBegin( GL_QUADS );
-			glVertex2f( -0.5f, -0.5f );
-			glVertex2f( 0.5f, -0.5f );
-			glVertex2f( 0.5f, 0.5f );
-			glVertex2f( -0.5f, 0.5f );
+		glVertex2f( -0.5f, -0.5f );
+		glVertex2f( 0.5f, -0.5f );
+		glVertex2f( 0.5f, 0.5f );
+		glVertex2f( -0.5f, 0.5f );
 		glEnd();
 	}
 }
 
 void close()
 {
-	//Destroy window	
+	//Destroy window
 	SDL_DestroyWindow( gWindow );
 	gWindow = NULL;
 
@@ -228,92 +243,190 @@ void close()
 int main( int argc, char* args[] )
 {
 	renderer Renderer = renderer();
+
+	current = high_resolution_clock::now();
+	high_resolution_clock::time_point past = high_resolution_clock::now();
+
+
+
+	// Time to do a test open of the file yay!
+
+
+	//
 	//Start up SDL and create window
-	if( !init() )
+	if ( !init() )
 	{
 		printf( "Failed to initialize!\n" );
 	}
 	else
 	{
-		//Renderer.init();	
-		//Renderer.addShader(GL_VERTEX_SHADER,"../shader/simple.vert");
-		//Renderer.addShader(GL_FRAGMENT_SHADER,"../shader/simple.frag");
-		//cout << Renderer.compile() << endl;
-		//cout << Renderer.link() << endl;
-
+		Terrain.setup();
 		//Main loop flag
 		bool quit = false;
 
 		//Event handler
 		SDL_Event e;
-		
+
 		//Enable text input
 		SDL_StartTextInput();
 
 		//While application is running
-		while( !quit )
+		while ( !quit )
 		{
+			current = high_resolution_clock::now();
+			duration<double> time_span = duration_cast<duration<double>>(current - past);
+			/*if(time_span.count() < 1/60.0f)
+			{
+				continue;
+			}*/
+
 			//Handle events on queue
-			while( SDL_PollEvent( &e ) != 0 )
+			while ( SDL_PollEvent( &e ) != 0 )
 			{
 				//User requests quit
-				if( e.type == SDL_QUIT )
+				if ( e.type == SDL_QUIT )
 				{
 					quit = true;
 				}
 				//Handle keypress with current mouse position
-				else if( e.type == SDL_TEXTINPUT )
-				{
-					int x = 0, y = 0;
-					SDL_GetMouseState( &x, &y );
-					handleKeys( e.text.text[ 0 ], x, y );
-				}
+				//else if( e.type == SDL_TEXTINPUT )
+				//{
+				//	int x = 0, y = 0;
+				//	SDL_GetMouseState( &x, &y );
+				//	handleKeys( e.text.text[ 0 ], x, y );
+				//}
 				else if (e.type == SDL_KEYDOWN)
 				{
 					// handle key down events here
-					if(e.key.keysym.sym == SDLK_ESCAPE)
+					if (e.key.keysym.sym == SDLK_ESCAPE)
 					{
 						quit = true;
 					}
+
+					// rotate camera left
+					if (e.key.keysym.sym == SDLK_q)
+					{
+						Camera.rotateX(1 * time_span.count());
+					}
+
+					// rotate camera right
+					if (e.key.keysym.sym == SDLK_e)
+					{
+						Camera.rotateX(-1 * time_span.count());
+					}
+
+					//Camera.applyRotation();
+
+					// Move left
+					if (e.key.keysym.sym == SDLK_a)
+					{
+						Camera.strafe(10 * time_span.count());
+					}
+					// move back
+					if (e.key.keysym.sym == SDLK_s)
+					{
+						Camera.translate(-10 * time_span.count());
+					}
+
+					// move right
+					if (e.key.keysym.sym == SDLK_d)
+					{
+						Camera.strafe(-10 * time_span.count());
+					}
+
+					// move forward
+					if (e.key.keysym.sym == SDLK_w)
+					{
+						Camera.translate(10 * time_span.count());
+					}
+
+					if (e.key.keysym.sym == SDLK_y)
+					{
+						glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+					}
+					if (e.key.keysym.sym == SDLK_u)
+					{
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+					}
+					if (e.key.keysym.sym == SDLK_z)
+					{
+						Camera.rotateY(-1 * time_span.count());
+					}
+					if (e.key.keysym.sym == SDLK_x)
+					{
+						Camera.rotateY(1 * time_span.count());
+					}
+					if (e.key.keysym.sym == SDLK_r)
+					{
+						Camera.flight(1 * time_span.count());
+					}
+					if (e.key.keysym.sym == SDLK_f)
+					{
+						Camera.flight(-1 * time_span.count());
+					}
+				}
+				else if (e.type == SDL_KEYUP)
+				{
+					if (e.key.keysym.sym == SDLK_w)
+					{
+						cout << "W RELEASED" << endl;
+						Camera.resetVerticalSpeed();
+					}
+					else if (e.key.keysym.sym == SDLK_s)
+					{
+						cout << "S RELEASED" << endl;
+						Camera.resetVerticalSpeed();
+					}
+					if (e.key.keysym.sym == SDLK_a || e.key.keysym.sym == SDLK_d)
+					{
+						Camera.resetHorizontalSpeed();
+					}
+					if (e.key.keysym.sym == SDLK_q || e.key.keysym.sym == SDLK_e)
+					{
+						// Reset Horizontal rotation
+						Camera.resetHorizontalRotation();
+					}
+					if (e.key.keysym.sym == SDLK_z || e.key.keysym.sym == SDLK_x)
+					{
+						Camera.resetVerticalRotation();
+					}
+					if (e.key.keysym.sym == SDLK_r || e.key.keysym.sym == SDLK_f)
+					{
+						Camera.resetFlightSpeed();
+					}
 				}
 			}
+			Camera.update();
 			quit = quit | QUIT;
+
 			//Render quad
 			render();
 			//cout << "ISSUES" << endl;
-			//Renderer.useProgram();
-			//
-			//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			//buf.bindBuffer();
-			//Renderer.enableVertexAttribPointer("poses");
-			//sglEnableVertexAttribArray(Renderer.);
-			
-			//buf.setVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,0);
 
-			//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-			//Renderer.renderRaw(GL_TRIANGLES,3);
+			//cout << indicies.size() << endl;
 			//glDrawArrays(GL_POINTS, 0, 1);
 
 			//cout << sizeof(float) << endl;
 			//cout << sizeof(Vertices) << endl;
 
 			auto error = glGetError();
-		if( error != GL_NO_ERROR )
-		{
-		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
+			if ( error != GL_NO_ERROR )
+			{
+				printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 
-		}
+			}
 
 			//Update screen
 			SDL_GL_SwapWindow( gWindow );
+			past = current;
 		}
-		
+
 		//Disable text input
 		SDL_StopTextInput();
 	}
 
- 	Renderer.cleanup();
-    
+	Renderer.cleanup();
+
 	//Free resources and close SDL
 	close();
 

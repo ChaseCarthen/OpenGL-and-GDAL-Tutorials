@@ -13,7 +13,7 @@ public:
 	triangle();
 
 	void setup();
-	void render();
+	void render(glm::mat4& view, glm::mat4& projection);
 	void update(float dt);
 	
 private:

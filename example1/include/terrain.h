@@ -1,5 +1,11 @@
 #include <renderable.h>
 #include <buffer.h>
+#include <gishandler.h>
+#include <string>
+#include <vector>
+
+using namespace std;
+
 #ifndef _TERRAIN_H_
 #define _TERRAIN_H_
 
@@ -7,15 +13,22 @@
 class terrain : public renderable
 {
 public:
-	terrain();
+	terrain(string filename);
 	//void SampleTerrain();
 	void setup();
 	void update(float dt);
-	void render();
+	void render(glm::mat4& view, glm::mat4& projection);
+	void cleanup();
 	
 private:
 	float** terrainData;
-	buffer Buffer;
+	buffer elements;
+	buffer terrainpoints;
+	string fname,projection;
+	float min,max,xres,yres;
+	vector<vector<float>> vecs;
+	vector<Vertex> vertexes;
+	vector<int> indicies;
 };
 
 #endif
