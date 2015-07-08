@@ -10,10 +10,6 @@ These examples will include:
 
 Here is some reading material on projections:
 * http://www.gdal.org/osr_tutorial.html
-* 
-
-In these links you will be introduced to OGR and how to go between projections.
-For example code look at the OGRExample folder.
 
 Here is an example of what will be possible with the given data.
 
