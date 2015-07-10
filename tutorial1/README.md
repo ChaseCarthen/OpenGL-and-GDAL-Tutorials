@@ -8,12 +8,7 @@ Suggested readings
 
 GDAL stands Geospatial Data Abstraction Library and is used as a library to read GIS (Geographic Information Systems) raster and vector datasets that are reprsentative of many different types of data. These datasets can be Digital Elevation Maps (DEMs) or terrain, Digital Orthophoto Quarter-Quadrangle (DOQQ) or satellite imagery, roads, trees, vegetation maps, and many other types of datasets. These datasets typically have some metadata that places them somewhere in the world and their size in that area. These dataset's are typically represented in a raster or vector form as similar to the image below.
 
-<figure>
-![Vector and Rastor Example](https://www.e-education.psu.edu/natureofgeoinfo/sites/www.e-education.psu.edu.natureofgeoinfo/files/image/data_models_buffer.gif)
-<figcaption>
-<div style="text-align:center;">A Vector and Raster Example.</div>
-</figcaption>
-</figure>
+![hello world](https://www.e-education.psu.edu/natureofgeoinfo/sites/www.e-education.psu.edu.natureofgeoinfo/files/image/data_models_buffer.gif "Vector vs. Raster Example")
 
  As you can see from the image above raster datasets are simply just like an image with pixels with evenly distributed cells, while vector datasets can are represented by points that can be connected or not connected at all. 
  
@@ -33,12 +28,7 @@ For more information on UTM read: http://geology.isu.edu/geostac/Field_Exercise/
 
 UTM is often used as means of making it easy to calculate the distance between two points on the map given that they are in the same UTM zone. The origin point for UTM zones are typically placed in the center of the zone at the equator. Many GIS datasets are often either in UTM or Lat Long and often it is required to reproject datasets into the same coordinate system when working with two or more datasets. Another issue is that coordinate systems are often subject to different precisions given the way they were derived at the time by cartograpers. 
 
-<figure>
-![Vector and Rastor Example](http://www.dmap.co.uk/utmworld.gif)
-<figcaption>
-<div style="text-align:center;">Lat Long and UTM.</div>
-</figcaption>
-</figure>
+![UTM and Lat Long map](http://www.dmap.co.uk/utmworld.gif "UTM Lat Long Map")
 
 **On to the code for loading rasters!!!**
 
@@ -110,7 +100,7 @@ Here I am giving an example of the all powerful GDAL geotranform for raster data
 
 The GeoTransform can be used to find bounding box of a dataset or how wide and long it extends out into the world.
 
-**Running the example **
+**Running the example**
 
 **Example output**
 
