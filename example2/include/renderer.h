@@ -35,10 +35,12 @@ public:
         glUniformMatrix4fv(v, 1, GL_FALSE, glm::value_ptr(mat));
     };
     void setUniformFloatArray2(string name, int count, float *floats);
+    void setUniformFloatArray3(string name, int count, float *floats);
     void setUniformInteger(string name, int val)
     {
        GLint v;
        getUniform(name,v);
+       //cout << "uniform int location: " << v<< " " << val << endl;
        glUniform1i(v,val);
     };
     void setUniformFloat(string name, float val)

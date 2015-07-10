@@ -344,28 +344,32 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vecto
   if(i -1 >= 0)
   {
 
-    left = vec3((i-1)*xres,data[i-1][j]/Max,j*yres);
+    left = vec3((i-1)*xres,data[i-1][j],j*yres);
+    left = center - left;
     l = true;
   }
 
   // Compute right
   if(i+1 < width)
   {
-    right = vec3((i+1)*xres,data[i+1][j]/Max,j*yres);
+    right = vec3((i+1)*xres,data[i+1][j],j*yres);
+    right = center - right;
     r = true;
   }
 
   // Compute up
   if(j-1 >= 0)
   {
-    up = vec3((i)*xres,data[i][j-1]/Max,(j+1)*yres);
+    up = vec3((i)*xres,data[i][j-1],(j-1)*yres);
+    up = center-up;
     u = true;
   }
 
   // Compute down
   if(j+1 < height)
   {
-    down = vec3((i)*xres,data[i][j+1]/Max,(j+1)*yres);
+    down = vec3((i)*xres,data[i][j+1],(j+1)*yres);
+    down = center-down;
     d = true;
   }
 
@@ -375,7 +379,7 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vecto
       vec3 v1 = cross(up,right);
       if(v1.y < 0)
       {
-        v1.y *= -1;
+        v1 *= -1;
       }
       sum += v1;
       count = count + 1;
@@ -385,7 +389,7 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vecto
       vec3 v1 = cross(up,left);
       if(v1.y < 0)
       {
-        v1.y *= -1;
+        v1 *= -1;
       }
       sum += v1;
       count = count + 1;
@@ -395,7 +399,7 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vecto
       vec3 v1 = cross(down,right);
       if(v1.y < 0)
       {
-        v1.y *= -1;
+        v1 *= -1;
       }
       sum += v1;
       count = count + 1;
@@ -405,7 +409,7 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vecto
       vec3 v1 = cross(down,left);
       if(v1.y < 0)
       {
-        v1.y *= -1;
+        v1 *= -1;
       }
       sum += v1;
       count = count + 1;
@@ -413,7 +417,8 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vecto
 
   // Compute average normal
   sum /= count;
-
+  auto t = normalize(sum); 
+  //cout << t.x << " " << t.y << " " << t.z << endl;
   // Normalize it and return :D!!!! Enjoy your smoothed normal for some smooth shading!
   return normalize(sum);
 };
@@ -465,10 +470,10 @@ void createMesh(vector<vector<float>>& input,float xres, float yres,float max,ve
          // LL = .5;
 
         
-        vec3 ULV = {i*xres,UL,j*yres};
-        vec3 LLV = {(i+1)*xres,LL,j*yres};
-        vec3 URV = {i*xres,UR,(j+1)*yres};
-        vec3 LRV = {(i+1)*xres,LR,(j+1)*yres};
+        vec3 ULV = {i*xres,UL*max,j*yres};
+        vec3 LLV = {(i+1)*xres,LL*max,j*yres};
+        vec3 URV = {i*xres,UR*max,(j+1)*yres};
+        vec3 LRV = {(i+1)*xres,LR*max,(j+1)*yres};
 
         // compute smoothed normal
         vec3 a = ComputeNormal(ULV,i,j,input.size(),input[i].size(),input,max,xres,yres);
@@ -477,8 +482,8 @@ void createMesh(vector<vector<float>>& input,float xres, float yres,float max,ve
         vec3 d = ComputeNormal(LRV,i+1,j+1,input.size(),input[i].size(),input,max,xres,yres);
 
         vectors.push_back(Vertex{ {i*xres,UL,j*yres}, a, {(float)i/(float)input.size(),(float)j/(float)input[i].size()} } );
-        vectors.push_back(Vertex{ {(i+1)*xres,LL,j*yres}, c, {(float)(i+1)/(float)input.size(),(float)j/(float)input[i].size()} } );
-        vectors.push_back(Vertex{ {i*xres,UR,(j+1)*yres}, b, {(float)i/(float)input.size(),(float)(j+1)/(float)input[i].size()} } );
+        vectors.push_back(Vertex{ {(i+1)*xres,LL,j*yres}, b, {(float)(i+1)/(float)input.size(),(float)j/(float)input[i].size()} } );
+        vectors.push_back(Vertex{ {i*xres,UR,(j+1)*yres}, c, {(float)i/(float)input.size(),(float)(j+1)/(float)input[i].size()} } );
         vectors.push_back(Vertex{ {(i+1)*xres,LR,(j+1)*yres}, d, {(float)(i+1)/(float)input.size(),(float)(j+1)/(float)input[i].size()} } );
         //cout << vectors[vectors.size()-1].normal.z << endl;
 

@@ -16,7 +16,20 @@ public:
 	// A function that muse be called after opengl has been initialized!!!!!
 	void setup();
 
+	void setScreenDims(int width,int height)
+	{
+		SCREEN_WIDTH = width;
+		SCREEN_HEIGHT = height;
+	};
+
+	void SetCameraPos(glm::vec3 pos)
+	{
+		cameraPos = pos;
+	};
+
 private:
 	buffer Buffer;
+	int SCREEN_WIDTH,SCREEN_HEIGHT;
+	glm::vec3 cameraPos;
 };
 #endif

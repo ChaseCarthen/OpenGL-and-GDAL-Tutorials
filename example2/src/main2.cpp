@@ -20,7 +20,7 @@ using namespace chrono;
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-string fname = "../data/1m_DTM.tif";
+string fname = "../data/output_srtm.tif"; //1m_DTM.tif";
 terrain Terrain(fname);
 float Vertices[9] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0};
 
@@ -69,7 +69,7 @@ camera Camera;
 
 bool init()
 {
-	
+
 	//Initialization flag
 	bool success = true;
 
@@ -157,6 +157,7 @@ bool initGL()
 	}
 	cout << "GUFFER SUCCESS: " << GBuffer::Init(SCREEN_WIDTH,SCREEN_HEIGHT) << endl;
 	fr.setup();
+	fr.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
 	return success;
 
 
@@ -195,7 +196,7 @@ bool initGL()
 		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 		success = false;
 	}
-	
+
 	return success;
 }
 
@@ -207,36 +208,37 @@ void update()
 
 void render()
 {
+	fr.SetCameraPos(Camera.getPos());
 	glm::mat4 view = Camera.getView();
 	glm::mat4 projection = Camera.getProjection();
-
+	//GBuffer::BindForReading();
 	//Clear color buffer
 	//glClearColor( 1.f, 0.f, 0.f, 1.f );
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
-	GBuffer::BindForReading();
+	
 
-    GLsizei HalfWidth = (GLsizei)(SCREEN_WIDTH / 2.0f);
-    GLsizei HalfHeight = (GLsizei)(SCREEN_HEIGHT / 2.0f);
+	/*GLsizei HalfWidth = (GLsizei)(SCREEN_WIDTH / 2.0f);
+	GLsizei HalfHeight = (GLsizei)(SCREEN_HEIGHT / 2.0f);
 
-    GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_POSITION);
-    glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
-                    0, 0, HalfWidth, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_POSITION);
+	glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+	                  0, 0, HalfWidth, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-    GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_DIFFUSE);
-    glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 
-                    0, HalfHeight, HalfWidth, SCREEN_HEIGHT, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_DIFFUSE);
+	glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+	                  0, HalfHeight, HalfWidth, SCREEN_HEIGHT, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-    GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_NORMAL);
-    glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 
-                    HalfWidth, HalfHeight, SCREEN_WIDTH, SCREEN_HEIGHT, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_NORMAL);
+	glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+	                  HalfWidth, HalfHeight, SCREEN_WIDTH, SCREEN_HEIGHT, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-    GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_TEXCOORD);
-    glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 
-                    HalfWidth, 0, SCREEN_WIDTH, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR); 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor( 0.f, 0.f, 0.5f, 0.f );
-    fr.render(view,projection);
+	GBuffer::SetReadBuffer(GBuffer::GBUFFER_TEXTURE_TYPE_TEXCOORD);
+	glBlitFramebuffer(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
+	                  HalfWidth, 0, SCREEN_WIDTH, HalfHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);*/
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClearColor( 0.f, 0.f, 0.5f, 0.f );
+	fr.render(view, projection);
 	GBuffer::BindForWriting();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_TRUE);

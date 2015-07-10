@@ -25,6 +25,10 @@ public:
     void update();
     glm::mat4 getProjection();
     glm::mat4 getView();
+    glm::vec3 getPos()
+    {
+        return position;
+    };
 
 private:
     float maxAngleX;

@@ -133,3 +133,10 @@ void renderer::setUniformFloatArray2(string name, int count, float* floats)
     getUniform(name,v);
     glUniform2fv(v,count,floats);
 }
+
+void renderer::setUniformFloatArray3(string name, int count, float* floats)
+{
+    GLint v;
+    getUniform(name,v);
+    glUniform3fv(v,count,floats);
+}

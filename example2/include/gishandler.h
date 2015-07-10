@@ -13,12 +13,12 @@
 //gdal
 #include <gdal.h>
 #include <gdal_priv.h>
-#include <cpl_conv.h>
+//#include <cpl_conv.h>
 #include <ogrsf_frmts.h>
-#include <gdal_priv.h>
+//#include <gdal_priv.h>
 //#include <gdal_alg.h>
-#include <gdal_alg_priv.h>
-#include <cpl_conv.h>
+//#include <gdal_alg_priv.h>
+//#include <cpl_conv.h>
 
 
 #ifndef _GISHANDLER_H_

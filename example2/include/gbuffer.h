@@ -30,10 +30,12 @@ public:
     static void DefaultBuffer();
     
     static void SetReadBuffer(GBUFFER_TEXTURE_TYPE TextureType);
+
+    static GLuint m_textures[GBUFFER_NUM_TEXTURES];
 private:
 	// For now I am using static variables as an experiment... sorry this is bad code.
 	static GLuint m_fbo;
-    static GLuint m_textures[GBUFFER_NUM_TEXTURES];
+    
     static GLuint m_depthTexture;
 };
 #endif
