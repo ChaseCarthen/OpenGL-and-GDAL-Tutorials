@@ -1,4 +1,7 @@
 #Tutorial 1 : A GDAL Introduction
+**Introduction**
+In this tutorial I will be introducing GDAL and giving examples of how to load a geotiff with GDAL. If you wish to skip this tutorial for some OpenGL, then your best bet is tutorial 2 :D (if your not curious about GDAL).
+
 
 Suggested readings
 * http://www.gdal.org/gdal_tutorial.html
