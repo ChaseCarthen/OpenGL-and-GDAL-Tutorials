@@ -104,9 +104,15 @@ Here I am giving an example of the all powerful GDAL geotranform for raster data
 The GeoTransform can be used to find bounding box of a dataset or how wide and long it extends out into the world.
 
 **Running the example**
+Make sure to change to the build directory and run the example like the following and make sure to make it:
+```bash
+cd build
+make
+./a.out sometime.tif
+```
 
 **Example output**
-
+![UTM and Lat Long map](ScreenShot.png "ScreenShot.png")
 In a later tutorial vector dataset loading will be introduced and the idea of having multiple layers in a tif. 
 
 The next tutorial will feature building and loading a terrain with OpenGL.
