@@ -1,21 +1,17 @@
-The following Repo holds simple examples and tutorials to work with GDAL to get
-data out of GIS dataset's. 
+The following Repo holds simple tutorials to work with GDAL to visualize GIS datasets with OpenGL. All of these tutorials will be made to compile both on Ubuntu (and other distros that are similar) and Mac. 
 
 These examples will include:
 * loading Shapes
 * loading DEMs
-* loading Geotiffs and other formats as well
+* loading Geotiffs
 * A brief demonstration of translating between two different projections
-* A simple OpenGL demonstration....
+* OpenGL examples
 
-Here is some reading material on projections:
-* http://www.gdal.org/osr_tutorial.html
-* 
-
-In these links you will be introduced to OGR and how to go between projections.
-For example code look at the OGRExample folder.
-
-Here is an example of what will be possible with the given data.
+The following tutorials will need these dependencies:
+* glm
+* GDAL
+* OpenGL
+* ImageMagick or GraphicsMagick
 
 Supplemental Readings: 
 * http://www.gdal.org/
