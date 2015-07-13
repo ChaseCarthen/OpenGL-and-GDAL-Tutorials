@@ -439,6 +439,11 @@ The controls for the scene are:
 
 **Screenshot**
 
+<img src="./screenshot.png" width="400">
+
+**Verfication Screenshot**
+
+<img src="./screenshot2.png" width="800">
 
 **Next Tutorial**
 -------
