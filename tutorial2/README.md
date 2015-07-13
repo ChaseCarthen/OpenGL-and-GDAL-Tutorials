@@ -447,3 +447,8 @@ The controls for the scene are:
 
 **Next Tutorial**
 -------
+In the next tutorial I will be going over how to build a shape file and placing it onto the terrain. 
+
+**Final Remarks**
+------
+One thing to note about this tutorial is that it only represents one way a terrain can be constructed from a geotiff. One possible way that we could render this terrain is by building the terrain on the fly inside of a shader. This could have some possible performance saving and other cool rendering effects. Some other cool things to consider is making a tesselation shader that would control the level of detail of terrain based on how close you are to the terrain (i.e. the closer you are to the terrain the more verticies it renders).  
