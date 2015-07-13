@@ -12,6 +12,7 @@ The following tutorials will need these dependencies:
 * GDAL
 * OpenGL
 * ImageMagick or GraphicsMagick
+* SDL2
 
 Supplemental Readings: 
 * http://www.gdal.org/
