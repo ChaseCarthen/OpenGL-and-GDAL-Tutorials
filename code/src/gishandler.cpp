@@ -69,8 +69,8 @@ void ComputeGeoProperties(GDALDataset *poDataset, int width, int height, double&
     double absoluteH = y - ybottom;
 
     // now lets compute the average resolution of the DEM
-    xres = absoluteW / height;
-    yres = absoluteH / width;
+    xres = absoluteW / width;
+    yres = absoluteH / height;
 };
 
 

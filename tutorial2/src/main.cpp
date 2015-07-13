@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/output_srtm.tif");
+		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek.tif");
 		Terrain.setup();
 		//Main loop flag
 		quit = false;
