@@ -7,6 +7,7 @@ In tutorial 2, the process of creating a mesh from a Digital Elevation Map (DEM)
 **Required Readings and Tutorials**
 Required Tutorials
 * Deferred Shading: http://ogldev.atspace.co.uk/www/tutorial35/tutorial35.html
+* Texture Mapping: http://ogldev.atspace.co.uk/www/tutorial16/tutorial16.html
 
 Required Readings
 * Deferred vs Forward Shading : http://gamedevelopment.tutsplus.com/articles/forward-rendering-vs-deferred-rendering--gamedev-12342
@@ -88,19 +89,24 @@ The goal of creating a mesh is literally to connect these dots in a triangle fas
 
 The example that we will be considering will create the triangles in a more uniform fahsion where each group of four dots will have two triangles and normals for each point.
 
-Here is some code that constructs a mesh
+Here is some code that will construct a mesh based on the data we have currented loaded data.
 ```c++
+struct Vertex
+{
+    glm::vec3 position; // where each dot is located
+    glm::vec3 normal; // the normal for this dot
+    glm::vec2 uv; // uvs for texture coordinate mapping
+};
+
 void createMesh(vector<vector<float>>& input,float xres, float yres,float max,vector<int>& indicies, vector<Vertex>& vertexes)
 {
-  cout << "MAX: " << max;
-  cout << "XRES " << xres << " YRES" << yres << endl;
   // Our vertex information along with normals contained inside
   std::vector<Vertex> vectors = vector<Vertex>();
 
   // Lets do some index rendering because it will save us some memory to some degree
   vector<int> indexs = vector<int>();
 
-  // Time to construct a height map based on the xres and yres
+  // Time to construct a height map based on the xres and yres for each group of four dots
   for(int i = 0; i < input.size()-1; i++)
   {
     for(int j = 0; j < input[i].size()-1; j++)
@@ -110,33 +116,26 @@ void createMesh(vector<vector<float>>& input,float xres, float yres,float max,ve
         float LL = (float)(input[i+1][j])/(float)(max); // Lower left
         float UR = (float)(input[i][j+1])/(float)(max); // Upper right
         float LR = (float)(input[i+1][j+1])/(float)(max); // Lower right
-        //cout << input[i][j] << " " << max <<endl;
 
         if(UL <= 0)
         {
           UL = 0;
         }
-        //else
-          //UL = .5;
+        
         if(UR <= 0)
         {
           UR = 0;
         }
-        //else
-          //UR = .5;
+
         if(LR <= 0)
         {
           LR = 0;
         }
-        //else
-         // LR = .5;
+
         if(LL <= 0)
         {
           LL = 0;
         }
-        //else
-         // LL = .5;
-
         
         vec3 ULV = {i*xres,UL*max,j*yres};
         vec3 LLV = {(i+1)*xres,LL*max,j*yres};
@@ -149,12 +148,13 @@ void createMesh(vector<vector<float>>& input,float xres, float yres,float max,ve
         vec3 c = ComputeNormal(URV,i,j+1,input.size(),input[i].size(),input,max,xres,yres);
         vec3 d = ComputeNormal(LRV,i+1,j+1,input.size(),input[i].size(),input,max,xres,yres);
 
+        // Push back vector information for these group of dots
         vectors.push_back(Vertex{ {i*xres,UL,j*yres}, a, {(float)i/(float)input.size(),(float)j/(float)input[i].size()} } );
         vectors.push_back(Vertex{ {(i+1)*xres,LL,j*yres}, b, {(float)(i+1)/(float)input.size(),(float)j/(float)input[i].size()} } );
         vectors.push_back(Vertex{ {i*xres,UR,(j+1)*yres}, c, {(float)i/(float)input.size(),(float)(j+1)/(float)input[i].size()} } );
         vectors.push_back(Vertex{ {(i+1)*xres,LR,(j+1)*yres}, d, {(float)(i+1)/(float)input.size(),(float)(j+1)/(float)input[i].size()} } );
-        //cout << vectors[vectors.size()-1].normal.z << endl;
 
+        // Push back indices for these verticies
         indexs.push_back(vectors.size() - 4);
         indexs.push_back(vectors.size() - 1);
         indexs.push_back(vectors.size() - 2);
@@ -163,14 +163,206 @@ void createMesh(vector<vector<float>>& input,float xres, float yres,float max,ve
         indexs.push_back(vectors.size() - 1);
         
     }
-    //break;
   }
 ```
 
+This is a simple way to build terrain based on the given data and will work with random data as well. This code loops over the data and produces a trinagulated mesh with normals, uvs, and the position of the verticies that will be used for visualizing the terrain. The uvs that are generated can be used for applying textures to this generated mesh. The one function that may a question is ComputeNormal. ComputeNormal produces a normal that in normalized based on the four possible triangles surronding that point to produce a "smooth normal" at that point. 
 
+Here is some code for computing the normal of a single point:
+```c++
+vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vector<float>>& data, float Max, float xres, float yres )
+{
+  // Compute center of all values which is the i and j passed in
+  vec3 left;
+  vec3 right;
+  vec3 up;
+  vec3 down;
+  vec3 sum = vec3(0,0,0);
+  bool l = false;
+  bool r = false;
+  bool u = false;
+  bool d = false;
+
+  int count = 0;
+  // Compute left
+  if(i -1 >= 0)
+  {
+    left = vec3((i-1)*xres,data[i-1][j],j*yres);
+    left = center - left;
+    l = true;
+  }
+
+  // Compute right
+  if(i+1 < width)
+  {
+    right = vec3((i+1)*xres,data[i+1][j],j*yres);
+    right = center - right;
+    r = true;
+  }
+
+  // Compute up
+  if(j-1 >= 0)
+  {
+    up = vec3((i)*xres,data[i][j-1],(j-1)*yres);
+    up = center-up;
+    u = true;
+  }
+
+  // Compute down
+  if(j+1 < height)
+  {
+    down = vec3((i)*xres,data[i][j+1],(j+1)*yres);
+    down = center-down;
+    d = true;
+  }
+
+  // Compute normals
+    if(u  && r)
+    {
+      vec3 v1 = cross(up,right);
+      if(v1.y < 0)
+      {
+        v1 *= -1;
+      }
+      sum += v1;
+      count = count + 1;
+    }
+    if(u && l)
+    {
+      vec3 v1 = cross(up,left);
+      if(v1.y < 0)
+      {
+        v1 *= -1;
+      }
+      sum += v1;
+      count = count + 1;
+    }
+    if(d && r)
+    {
+      vec3 v1 = cross(down,right);
+      if(v1.y < 0)
+      {
+        v1 *= -1;
+      }
+      sum += v1;
+      count = count + 1;
+    }
+    if(d && l)
+    {
+      vec3 v1 = cross(down,left);
+      if(v1.y < 0)
+      {
+        v1 *= -1;
+      }
+      sum += v1;
+      count = count + 1;
+    }
+
+  // Compute average normal
+  sum /= count;
+  
+  // Normalize it and return :D!!!! Enjoy your smoothed normal for some smooth shading!
+  return normalize(sum);
+};
+```
+As you can see I am taking the normals of the different triangles surronding one point and averaging them to produce a smooth normal. 
 
 **Visualizing the Terrain**
 -----
+Now to go over code that will visualize our constructed mesh. First we need to load the data into some a Vertex  Buffer Object and a Index Element Array to hold our indicies.
+
+``` c++
+// Buffers
+GLuint TerrainIndicies;
+glGenBuffers(1,&TerrainIndicies);
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,TerrainIndicies);
+glBufferData(sizeof(int)*indicies.size(), &indicies[0],GL_STATIC_DRAW);
+
+GLuint VBO;
+glGenBuffers(1,&VBO);
+glBindBuffer(GL_ARRAY_BUFFER,VBO);
+glBufferData(sizeof(Vertex)*vertexes.size(), &vertexes[0],GL_STATIC_DRAW);
+```
+The VBO buffer needs to be of the type GL_ARRAY_BUFFER to hold the uv,normal, and position data for each vertex, while the TerrainIndicies must be of type GL_ELEMENT_ARRAY_BUFFER to hold each index. As you can see GL_STATIC_DRAW has been specified in glBufferData because the terrain will be constantly drawn. This code will allow index rendering to be used.
+
+With the buffers now setup for passing data to the graphics card for rendering, we can go over the shaders. For this tutorial I will be assuming one knows how to compile and link shaders. Both of the fragment and vertex shaders will be written for glsl version 3.30.
+
+ Here is the vertex shader that will be needed:
+```glsl
+// Vert
+#version 330
+
+layout (location = 0) in vec3 poses;
+layout (location = 1) in vec2 TexCoord;
+layout (location = 2) in vec3 Normal;
+
+uniform mat4 mvp;
+uniform mat4 model;
+uniform float Max;
+uniform float Min;
+
+out vec2 TexCoord0;
+out vec3 Normal0;
+out vec3 WorldPos0;
+
+void main(void)
+{
+   vec3 p = poses;
+   p.y *= Max;
+
+   gl_Position = mvp*vec4(p,1);
+   TexCoord0 = TexCoord;
+   Normal0 = (model*vec4(Normal,0.0)).xyz;
+   WorldPos0 = (model*vec4(p,1.0)).xyz; 
+}
+```
+This vertex shader will pass the uvs, normals projected into the world, and the vertex projected into the world. One key important thing here is that we are only passing the vertex position in projected because for deferred shading. I will be giving shaders for both forward rendering and deferred rendering.
+
+Here is the fragment shader that will be needed for deferred rendering. As you can see the rendering targets for this shader are WorldPosOut,DiffuseOut, NormalOut, and TexCoordOut. This tutorial does a good job of explaining deferred shading: http://ogldev.atspace.co.uk/www/tutorial35/tutorial35.html. 
+
+```glsl
+//frag
+#version 330
+
+in vec2 TexCoord0; 
+in vec3 Normal0; 
+in vec3 WorldPos0; 
+
+layout (location = 0) out vec3 WorldPosOut; 
+layout (location = 1) out vec3 DiffuseOut; 
+layout (location = 2) out vec3 NormalOut; 
+layout (location = 3) out vec3 TexCoordOut; 
+
+void main() 
+{ 
+    WorldPosOut = WorldPos0; 
+    DiffuseOut = vec3(.7,.45,.01); 
+    NormalOut = normalize(Normal0); 
+    TexCoordOut = vec3(TexCoord0, 0.0); 
+}
+```
+
+Here is the shader that will be needed for forward rendering:
+//frag
+#version 330
+
+in vec2 TexCoord0; 
+in vec3 Normal0; 
+in vec3 WorldPos0; 
+
+out vec3 ColorOut;
+
+void main() 
+{ 
+    //WorldPosOut = WorldPos0; 
+    //DiffuseOut = vec3(.7,.45,.01); 
+    //NormalOut = normalize(Normal0); 
+    //TexCoordOut = vec3(TexCoord0, 0.0);
+    ColorOut = vec3(.7,.45,.01);
+}
+```
+
+
 
 **Building and Running the Tutorial**
 -----
