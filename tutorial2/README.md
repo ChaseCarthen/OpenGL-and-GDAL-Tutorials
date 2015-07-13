@@ -342,9 +342,12 @@ void main()
 }
 ```
 
-Here is the shader that will be needed for forward rendering:
+Here is the shader that will be needed for forward rendering with a hard coded direction light:
+```glsl
 //frag
 #version 330
+
+uniform vec3 VertexToEye;
 
 in vec2 TexCoord0; 
 in vec3 Normal0; 
@@ -354,18 +357,85 @@ out vec3 ColorOut;
 
 void main() 
 { 
-    //WorldPosOut = WorldPos0; 
-    //DiffuseOut = vec3(.7,.45,.01); 
-    //NormalOut = normalize(Normal0); 
-    //TexCoordOut = vec3(TexCoord0, 0.0);
-    ColorOut = vec3(.7,.45,.01);
+    vec2 TexCoord = CalcTexCoord();
+   	vec3 WorldPos = texture(gPositionMap, TexCoord).xyz;
+   	vec3 Color = texture(gColorMap, TexCoord).xyz;
+   	vec3 Normal = texture(gNormalMap, TexCoord).xyz;
+   	Normal = normalize(Normal);
+    
+    // Directional light 
+    vec3 color = vec3(1,1,1);
+    vec3 dirlight = vec3(0,-1, 0); // lets make the light point perpendicular to the terrain
+    
+    // intensities
+    float ambient = .5;
+    float specular = 1.0;
+    float diffuse = .5;
+    
+    //factors
+    float specularpower = 2;
+    
+    float DiffuseFactor = dot(Normal,-dirlight);
+    vec3 AmbientColor = color * ambient;
+    vec3 DiffuseColor = vec3(0,0,0);
+    vec3 SpecularColor = vec3(0, 0, 0);
+
+    if(DiffuseFactor > 0)
+    {
+
+      
+      DiffuseOut = vec3(.7,.45,.01); 
+      NormalOut = normalize(Normal0); 
+      TexCoordOut = vec3(TexCoord0, 0.0); 
+    	DiffuseColor = color*DiffuseFactor*diffuse;
+
+    	// specular calculations
+    	vec3 VertexToEye = normalize(EyePos - WorldPos);
+    	vec3 LightReflect = normalize(reflect(dirlight,Normal));
+    	float Specular = dot(VertexToEye,LightReflect);
+    	if(Specular > 0)
+    	{
+    		Specular = pow(Specular,specularPower);
+    		SpecularColor = color* specular* Specular;
+    	}
+    }
+
+
+   	ColorOut = Color * (AmbientColor + DiffuseColor + SpecularColor);
 }
 ```
 
+With both frag shaders complete it is now possible to visualize the mesh with:
+
+```c++
+ glDrawElements(
+     GL_TRIANGLES,      // mode
+     indicies.Size(),    // count
+     GL_UNSIGNED_INT,   // type
+     (void*)0           // element array buffer offset
+ );
+```
+** Note: I have not included what needs to be passed into the shader the program. **
 
 
 **Building and Running the Tutorial**
 -----
+```bash
+cd tutorial2/build
+make
+../bin/out
+```
+The controls for the scene are:
+* a: left
+* d: right
+* s: back
+* w: forward
+* r: up
+* f: down
+* q: rotate left
+* e: rotate right
+* z: rotate down
+* x: rotate up
 
 **Screenshot**
 
