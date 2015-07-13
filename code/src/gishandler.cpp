@@ -150,7 +150,7 @@ bool getRawValuesFromFile(string fname,vector<vector<float>>& vecs,float& min, f
    pafScanline = (float *) CPLMalloc(sizeof(float)*width*height);
 
    // I don't like dynamic float array (that is a lie) just a preference
-   vector<vector<float>> out = vector<vector<float>>(height,vector<float> (width,0));
+   vector<vector<float>> out = vector<vector<float>>(width,vector<float> (height,0));
 
    auto err = poBand->RasterIO(GF_Read,0,0,width,height,pafScanline,width,height,GDT_Float32,0,0);
    cout << "Loaded data with status " << err << endl;
@@ -183,9 +183,9 @@ bool getRawValuesFromFile(string fname,vector<vector<float>>& vecs,float& min, f
     for(int j = 0; j < width; j++)
     {
       if(pafScanline[(height-1-i)*width+j] > 0)
-      out[i][j] = pafScanline[(height-1-i)*width+j];
+      out[width-1-j][i] = pafScanline[(height-1-i)*width+j];
       else
-      out[i][j] = 0;
+      out[width-1-j][i] = 0;
     }
    }
 
