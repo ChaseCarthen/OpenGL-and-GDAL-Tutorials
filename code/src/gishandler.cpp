@@ -305,15 +305,11 @@ void generateTexture(string fname, GLuint& tex, int bandnum)
       {
         // Set zero val
         texs[i*512+j] = 0;
-        //cout << (int)texs[i*512 +j] << fname << endl;
       }
-      //texs[i*512+j] = 255;
-
-      //ut[i][j] = pafScanline[i*width+j];
     }
    }
    CPLFree(pafScanline);
-   //exit(0);
+
    // Create a texture
    glGenTextures(1,&tex);
    glBindTexture(GL_TEXTURE_2D,tex);
@@ -418,7 +414,7 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height,vector<vecto
   // Compute average normal
   sum /= count;
   auto t = normalize(sum); 
-  //cout << t.x << " " << t.y << " " << t.z << endl;
+
   // Normalize it and return :D!!!! Enjoy your smoothed normal for some smooth shading!
   return normalize(sum);
 };
@@ -442,33 +438,23 @@ void createMesh(vector<vector<float>>& input,float xres, float yres,float max,ve
         float LL = (float)(input[i+1][j])/(float)(max); // Lower left
         float UR = (float)(input[i][j+1])/(float)(max); // Upper right
         float LR = (float)(input[i+1][j+1])/(float)(max); // Lower right
-        //cout << input[i][j] << " " << max <<endl;
 
         if(UL <= 0)
         {
           UL = 0;
         }
-        //else
-          //UL = .5;
         if(UR <= 0)
         {
           UR = 0;
         }
-        //else
-          //UR = .5;
         if(LR <= 0)
         {
           LR = 0;
         }
-        //else
-         // LR = .5;
         if(LL <= 0)
         {
           LL = 0;
         }
-        //else
-         // LL = .5;
-
         
         vec3 ULV = {i*xres,UL*max,j*yres};
         vec3 LLV = {(i+1)*xres,LL*max,j*yres};
@@ -493,9 +479,7 @@ void createMesh(vector<vector<float>>& input,float xres, float yres,float max,ve
         indexs.push_back(vectors.size() - 4);
         indexs.push_back(vectors.size() - 3);
         indexs.push_back(vectors.size() - 1);
-        
     }
-    //break;
   }
   
   // Pass Vectors out
