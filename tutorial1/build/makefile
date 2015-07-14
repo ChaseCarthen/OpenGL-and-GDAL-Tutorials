@@ -1,2 +1,4 @@
+INCLUDE := -I/usr/include/gdal -I/usr/local/include
+LIBS := -L/usr/local/lib -lgdal
 all:	../src/main.cpp
-	g++ ../src/main.cpp -L/usr/local/lib -I/usr/local/include -lgdal
+	g++ ../src/main.cpp $(INCLUDE) $(LIBS)
