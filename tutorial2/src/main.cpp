@@ -1,5 +1,5 @@
 
-#define GLM_FORCE_RADIANS
+//#define GLM_FORCE_RADIANS
 #include <iostream>
 
 #include <AssetManager.h>
@@ -159,13 +159,16 @@ int main(int argc, char** argv)
 			current = high_resolution_clock::now();
 			duration<double> time_span = duration_cast<duration<double>>(current - past);
 			//Handle events on queue
+
+			if(time_span.count() <= 1.0/30.0)
+			{
+				continue;
+			}
+                        //past = current
+                        cout << time_span.count();
 			while ( SDL_PollEvent( &e ) != 0 )
 			{
 				HandleEvents(e,time_span.count());
-			}
-			if(time_span.count() <= 1.0f/60.0f)
-			{
-				continue;
 			}
 
 
@@ -314,7 +317,7 @@ void render()
 	fr.SetCameraPos(Camera.getPos());
 	glm::mat4 view = Camera.getView();
 	glm::mat4 projection = Camera.getProjection();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	fr.render(view, projection);
 
@@ -329,7 +332,8 @@ void render()
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	Terrain.render(view, projection);
 	GBuffer::DefaultBuffer();
-        glDisable(GL_CULL_FACE);
+        //glDisable(GL_CULL_FACE);
+        //glDisable(GL_DEPTH_TEST);
 	return;
 }
 
