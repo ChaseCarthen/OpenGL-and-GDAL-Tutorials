@@ -45,34 +45,34 @@ float Vertices[9] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0};
 
 string ErrorString(GLenum error)
 {
-  if(error == GL_INVALID_ENUM)
-  {
-    return "GL_INVALID_ENUM: An unacceptable value is specified for an enumerated argument.";
-  }
+	if (error == GL_INVALID_ENUM)
+	{
+		return "GL_INVALID_ENUM: An unacceptable value is specified for an enumerated argument.";
+	}
 
-  else if(error == GL_INVALID_VALUE)
-  {
-    return "GL_INVALID_VALUE: A numeric argument is out of range.";
-  }
+	else if (error == GL_INVALID_VALUE)
+	{
+		return "GL_INVALID_VALUE: A numeric argument is out of range.";
+	}
 
-  else if(error == GL_INVALID_OPERATION)
-  {
-    return "GL_INVALID_OPERATION: The specified operation is not allowed in the current state.";
-  }
+	else if (error == GL_INVALID_OPERATION)
+	{
+		return "GL_INVALID_OPERATION: The specified operation is not allowed in the current state.";
+	}
 
-  else if(error == GL_INVALID_FRAMEBUFFER_OPERATION)
-  {
-    return "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete.";
-  }
+	else if (error == GL_INVALID_FRAMEBUFFER_OPERATION)
+	{
+		return "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete.";
+	}
 
-  else if(error == GL_OUT_OF_MEMORY)
-  {
-    return "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.";
-  }
-  else
-  {
-    return "None";
-  }
+	else if (error == GL_OUT_OF_MEMORY)
+	{
+		return "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.";
+	}
+	else
+	{
+		return "None";
+	}
 };
 
 //Starts up SDL, creates window, and initializes OpenGL
@@ -85,10 +85,10 @@ bool initGL();
 void handleKeys( unsigned char key, int x, int y )
 {};
 
-void HandleEvents(SDL_Event e,float dt=0);
+void HandleEvents(SDL_Event e, float dt = 0);
 
 //Per frame update
-void update(float dt=0);
+void update(float dt = 0);
 
 //Renders quad to the screen
 void render();
@@ -124,10 +124,10 @@ int main(int argc, char** argv)
 
 	string appPath = argv[0];
 	cout << argv[0] << endl;
-	appPath.erase(appPath.end()-3,appPath.end());
+	appPath.erase(appPath.end() - 3, appPath.end());
 	// Lets set the application path for this guy
 	AssetManager::SetAppPath(appPath);
-        cout << "HERE @" << endl;
+	cout << "HERE @" << endl;
 
 	current = high_resolution_clock::now();
 	high_resolution_clock::time_point past = high_resolution_clock::now();
@@ -154,21 +154,21 @@ int main(int argc, char** argv)
 		//While application is running
 		while ( !quit )
 		{
-                        auto t = glGetError();
-                        cout << ErrorString(t) << endl;
+			auto t = glGetError();
+			cout << ErrorString(t) << endl;
 			current = high_resolution_clock::now();
 			duration<double> time_span = duration_cast<duration<double>>(current - past);
 			//Handle events on queue
 
-			if(time_span.count() <= 1.0/30.0)
+			if (time_span.count() <= 1.0 / 30.0)
 			{
 				continue;
 			}
-                        //past = current
-                        cout << time_span.count();
+			//past = current
+			cout << time_span.count();
 			while ( SDL_PollEvent( &e ) != 0 )
 			{
-				HandleEvents(e,time_span.count());
+				HandleEvents(e, time_span.count());
 			}
 
 
@@ -243,8 +243,8 @@ bool init()
 			}
 			else
 			{
-                                auto t = glGetError();
-                                cout << ErrorString(t) << endl;
+				auto t = glGetError();
+				cout << ErrorString(t) << endl;
 
 
 				//Use Vsync
@@ -252,21 +252,24 @@ bool init()
 				{
 					printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
 				}
-                                t = glGetError();
-                                cout << ErrorString(t) << endl;
+				t = glGetError();
+				cout << ErrorString(t) << endl;
 
-                                cout << glewGetString(GLEW_VERSION) << endl;
-                                glewExperimental = GL_TRUE;
-                                auto status = glewInit();
+				#if !defined(__APPLE__) && !defined(MACOSX)
+				cout << glewGetString(GLEW_VERSION) << endl;
+				glewExperimental = GL_TRUE;
+
+				auto status = glewInit();
 				//Check for error
-				if(status != GLEW_OK)
+				if (status != GLEW_OK)
 				{
-                                 //std::cerr << "GLEW Error: " << glewGetErrorString(status) << "\n";
-        			 success = false;
-        			}
-
-                                t = glGetError();
-                                cout << ErrorString(t) << endl;
+					//std::cerr << "GLEW Error: " << glewGetErrorString(status) << "\n";
+					success = false;
+				}
+				#endif
+				
+				t = glGetError();
+				cout << ErrorString(t) << endl;
 				//Initialize OpenGL
 				if ( !initGL() )
 				{
@@ -332,8 +335,8 @@ void render()
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	Terrain.render(view, projection);
 	GBuffer::DefaultBuffer();
-        //glDisable(GL_CULL_FACE);
-        //glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_CULL_FACE);
+	//glDisable(GL_DEPTH_TEST);
 	return;
 }
 
@@ -347,7 +350,7 @@ void close()
 	SDL_Quit();
 }
 
-void HandleEvents(SDL_Event e,float dt)
+void HandleEvents(SDL_Event e, float dt)
 {
 	//User requests quit
 	if ( e.type == SDL_QUIT )
