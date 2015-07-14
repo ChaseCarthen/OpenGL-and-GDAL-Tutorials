@@ -4,8 +4,9 @@ using namespace std;
 #include <OpenGL/gl3.h>
 #else //linux as default
 #include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
+//#include <GL/gl.h>
+//#include <GL/glext.h>
+//#define GL_GLEXT_PROTOTYPES 1
 #endif
 #include <stdlib.h>
 #ifndef _GBUFFER_H_

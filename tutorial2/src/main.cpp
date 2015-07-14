@@ -13,14 +13,14 @@
 #include <OpenGL/GLU.h>
 #else //linux as default
 #include <GL/glew.h>
-#include <GL/gl.h>
+//#include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glext.h>
+//#include <GL/glext.h>
 //#define GL_GLEXT_PROTOTYPES 1
 
 #endif
 
-#define GL3_PROTOTYPES 1
+//#define GL3_PROTOTYPES 1
 #include <renderer.h>
 #include <iostream>
 #include <buffer.h>
@@ -42,6 +42,38 @@ using namespace chrono;
 
 
 float Vertices[9] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0};
+
+string ErrorString(GLenum error)
+{
+  if(error == GL_INVALID_ENUM)
+  {
+    return "GL_INVALID_ENUM: An unacceptable value is specified for an enumerated argument.";
+  }
+
+  else if(error == GL_INVALID_VALUE)
+  {
+    return "GL_INVALID_VALUE: A numeric argument is out of range.";
+  }
+
+  else if(error == GL_INVALID_OPERATION)
+  {
+    return "GL_INVALID_OPERATION: The specified operation is not allowed in the current state.";
+  }
+
+  else if(error == GL_INVALID_FRAMEBUFFER_OPERATION)
+  {
+    return "GL_INVALID_FRAMEBUFFER_OPERATION: The framebuffer object is not complete.";
+  }
+
+  else if(error == GL_OUT_OF_MEMORY)
+  {
+    return "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.";
+  }
+  else
+  {
+    return "None";
+  }
+};
 
 //Starts up SDL, creates window, and initializes OpenGL
 bool init();
@@ -122,18 +154,21 @@ int main(int argc, char** argv)
 		//While application is running
 		while ( !quit )
 		{
+                        auto t = glGetError();
+                        cout << ErrorString(t) << endl;
 			current = high_resolution_clock::now();
 			duration<double> time_span = duration_cast<duration<double>>(current - past);
-			if(time_span.count() < 1.0f/60.0f)
-			{
-				continue;
-			}
-
 			//Handle events on queue
 			while ( SDL_PollEvent( &e ) != 0 )
 			{
 				HandleEvents(e,time_span.count());
 			}
+			if(time_span.count() <= 1.0f/60.0f)
+			{
+				continue;
+			}
+
+
 
 			// Update first
 			update();
@@ -144,7 +179,7 @@ int main(int argc, char** argv)
 			auto error = glGetError();
 			if ( error != GL_NO_ERROR )
 			{
-				printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
+				cout << "Error initializing OpenGL! " << gluErrorString( error )  << endl;
 
 			}
 
@@ -186,6 +221,7 @@ bool init()
 		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
 		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
 		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
+
 		//Create window
 		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 		if ( gWindow == NULL )
@@ -204,20 +240,38 @@ bool init()
 			}
 			else
 			{
+                                auto t = glGetError();
+                                cout << ErrorString(t) << endl;
+
+
 				//Use Vsync
 				if ( SDL_GL_SetSwapInterval( 1 ) < 0 )
 				{
 					printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
 				}
+                                t = glGetError();
+                                cout << ErrorString(t) << endl;
 
+                                cout << glewGetString(GLEW_VERSION) << endl;
+                                glewExperimental = GL_TRUE;
+                                auto status = glewInit();
+				//Check for error
+				if(status != GLEW_OK)
+				{
+                                 //std::cerr << "GLEW Error: " << glewGetErrorString(status) << "\n";
+        			 success = false;
+        			}
+
+                                t = glGetError();
+                                cout << ErrorString(t) << endl;
 				//Initialize OpenGL
 				if ( !initGL() )
 				{
-					printf( "Unable to initialize OpenGL!\n" );
+					printf( "OUCH Unable to initialize OpenGL!\n" );
 					success = false;
 				}
-				//Check for error
 
+				//cout << glGetString(GL_VERSION) << endl;
 				cout << "GUFFER SUCCESS: " << GBuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT) << endl;
 				fr.setup();
 				fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -245,10 +299,7 @@ bool initGL()
 		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 		success = false;
 	}
-        if(glewInit() != GLEW_OK)
-	{
-          success = false;
-        }
+
 	return success;
 }
 
@@ -278,6 +329,7 @@ void render()
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	Terrain.render(view, projection);
 	GBuffer::DefaultBuffer();
+        glDisable(GL_CULL_FACE);
 	return;
 }
 
