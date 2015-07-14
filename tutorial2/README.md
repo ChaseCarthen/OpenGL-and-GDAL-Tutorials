@@ -13,6 +13,13 @@ Required Readings
 * Deferred vs Forward Shading : http://gamedevelopment.tutsplus.com/articles/forward-rendering-vs-deferred-rendering--gamedev-12342
 * http://www.gdal.org/gdal_tutorial.html
 
+**Steps for building a Terrain**
+-----
+1. Load the Data
+2. Get Geospatial Information
+3. Create the Mesh
+4. Visualize the Mesh
+5. Look at your constructed terrain.
 
 **Loading the Data**
 ------
@@ -60,20 +67,108 @@ pafScanline = (float *) CPLMalloc(sizeof(float)*width*height);
 auto err = poBand->RasterIO(GF_Read,0,0,width,height,pafScanline,width,height,GDT_Float32,0,0);
 
 // Here is something I like to do by my own preference
-vector<vector<float>> out = vector<vector<float>>(height,vector<float> (width,0));
+vector<vector<float>> out = vector<vector<float>>(width,vector<float> (height,0));
 
-// move everything to a vector -- slow memory but okay for what we are doing
-for(int i = 0; i < height; i++)
+// move everything to a vector -- slow memory but okay for what we are doing especially when zeroing out zero values
+for(int i = 0; i < width; i++)
 {
-  for(int j = 0; j < width; j++)
+  for(int j = 0; j < height; j++)
   {
     if(pafScanline[(height-1-i)*width+j] > 0)
-      out[i][j] = pafScanline[(height-1-i)*width+j];
+      out[width-i-1][j] = pafScanline[(height-1-i)*width+j];
     else
-      out[i][j] = 0;
+      out[width-i-1][j] = 0;
   }
 }
 ```
+
+**Getting the Geospatial Data**
+-----
+From tutorial 1, I discussed everything about projections, width and height of a dataset, the geotransform, and the resolution of pixels. Lets put this to practice in the next code snippet where we will find average pixel resolution and convert coordinates to utm.
+
+One thing about the tif we will be using today is that its bounding box primarily lies within UTM zone 11. Here is a function that will take any lat long point and convert it to UTM zone 11. While this code be a hard coded function for now, an important thing to note is that one should create a function that can handle multiple utm zones and even determine the utm to use. 
+```c++
+void transformToUtm(double& x, double& y)
+{
+    OGRSpatialReference    oUTM, *poLatLong;
+    OGRCoordinateTransformation *poTransform;
+
+    oUTM.SetProjCS("UTM 11 / WGS84");
+    oUTM.SetWellKnownGeogCS( "WGS84" );
+    oUTM.SetUTM( 11 );
+
+    poLatLong = oUTM.CloneGeogCS();
+    
+    poTransform = OGRCreateCoordinateTransformation( poLatLong, &oUTM );
+    if( poTransform == NULL )
+    {
+        return;
+    }
+    
+
+    if( !poTransform->Transform( 1, &x, &y) )
+    {
+      // Error here
+    }
+};
+```
+All of the code above should be self explantory. An important thing to note about this code is the fact that I am considering on using UTM as opposed to Lat Long. Lat Long is nice as a angular system and not having to worry about what zone you are in, but the distances between to Lat Long points can be considerably small and could have problems with floating point precision. While in UTM the same two Lat Long will be meters apart and the distance will be considerally bigger preventing floating precision errors. The future tutorials will use UTM for placing everything in the world.
+
+Now lets use this transformToUtm function to find the average x and y resolution in utm for the dataset, while getting the utm bounding box for this dataset.
+``` c++
+void ComputeGeoProperties(GDALDataset *poDataset, int width, int height, double& x, double& y,double& xright, double& ybottom, double& xres, double& yres)
+{
+    double adfGeoTransform[6];
+    if( poDataset->GetGeoTransform( adfGeoTransform ) == CE_None )
+    {
+        printf( "Origin = (%.6f,%.6f)\n",
+                adfGeoTransform[0], adfGeoTransform[3] );
+
+        printf( "Pixel Size = (%.6f,%.6f)\n",
+                adfGeoTransform[1], adfGeoTransform[5] );
+        x = adfGeoTransform[0];
+        y = adfGeoTransform[3];
+        xright = x + adfGeoTransform[1]*width;
+        ybottom = y + adfGeoTransform[5]*height;
+    }
+    else
+    {
+      return;
+    }
+
+    string proj;
+    proj = string(poDataset->GetProjectionRef());
+
+    OGRSpatialReference sr2;
+    char* test = &proj[0];
+    sr2.importFromWkt(&test);
+    
+    // Get Geography Coordinate System clone
+    OGRSpatialReference* geog2 = sr2.CloneGeogCS(); 
+
+    // Now to create coordinate transform function
+    OGRCoordinateTransformation* poTransform2 = OGRCreateCoordinateTransformation( &sr2, geog2 );
+
+    // Compute corners
+    poTransform2->Transform(1,&x,&y);
+    poTransform2->Transform(1,&xright,&ybottom);
+
+    // Transform to utm on both corners
+    transformToUtm(x,y);
+    transformToUtm(xright,ybottom);
+    cout << xright << " " << ybottom <<endl;
+    
+    // Lets compute the absolute width and height in utm
+    double absoluteW = xright - x;
+    double absoluteH = y - ybottom;
+
+    // now lets compute the average resolution (in utm) of the DEM
+    xres = absoluteW / width;
+    yres = absoluteH / height;
+};
+```
+Since UTM is in meters, the computed resolution is essential meters per pixel. Using this resolution we can compute the offsets for each vertex in a mesh.
+
 
 **Creating the Terrain Mesh**
 -----
