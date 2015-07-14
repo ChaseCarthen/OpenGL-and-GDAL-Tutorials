@@ -116,3 +116,5 @@ make
 In a later tutorial vector dataset loading will be introduced and the idea of having multiple layers in a tif. 
 
 The next tutorial will feature building and loading a terrain with OpenGL.
+
+Lasty some extra reading on projected coordinate Systems and geographic coordinate systems: http://help.arcgis.com/en/arcgisdesktop/10.0/help/index.html#/What_are_map_projections/003r00000001000000/.
