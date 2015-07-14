@@ -17,5 +17,6 @@ The following tutorials will need these dependencies:
 Supplemental Readings: 
 * http://www.gdal.org/
 * http://www.gdal.org/gdal_tutorial.html
-* Other sources
+* http://www.gdal.org/osr_tutorial.html
+* http://help.arcgis.com/en/arcgisdesktop/10.0/help/index.html#/What_are_map_projections/003r00000001000000/
 
