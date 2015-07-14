@@ -1,9 +1,25 @@
+
+#define GLM_FORCE_RADIANS
 #include <iostream>
+
 #include <AssetManager.h>
 
 #include <SDL2/SDL.h>
-#include <OpenGL/GLU.h>
+
+
+
+#if defined(__APPLE__) || defined(MACOSX)
 #include <OpenGL/gl3.h>
+#include <OpenGL/GLU.h>
+#else //linux as default
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
+//#define GL_GLEXT_PROTOTYPES 1
+
+#endif
+
 #define GL3_PROTOTYPES 1
 #include <renderer.h>
 #include <iostream>
@@ -75,11 +91,11 @@ int main(int argc, char** argv)
 	renderer Renderer = renderer();
 
 	string appPath = argv[0];
-
+	cout << argv[0] << endl;
 	appPath.erase(appPath.end()-3,appPath.end());
 	// Lets set the application path for this guy
 	AssetManager::SetAppPath(appPath);
-
+        cout << "HERE @" << endl;
 
 	current = high_resolution_clock::now();
 	high_resolution_clock::time_point past = high_resolution_clock::now();
@@ -91,6 +107,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
+		cout << "INITIALIZED" << endl;
 		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek.tif");
 		Terrain.setup();
 		//Main loop flag
@@ -199,6 +216,11 @@ bool init()
 					printf( "Unable to initialize OpenGL!\n" );
 					success = false;
 				}
+				//Check for error
+
+				cout << "GUFFER SUCCESS: " << GBuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT) << endl;
+				fr.setup();
+				fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
 			}
 		}
 	}
@@ -213,15 +235,9 @@ bool initGL()
 {
 	GLenum error = GL_NO_ERROR;
 	bool success = true;
-
 	//Initialize clear color
 	glClearColor( 0.f, 0.f, 1.f, 1.f );
 
-	//Check for error
-
-	cout << "GUFFER SUCCESS: " << GBuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT) << endl;
-	fr.setup();
-	fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	error = glGetError();
 	if ( error != GL_NO_ERROR )
@@ -229,7 +245,10 @@ bool initGL()
 		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
 		success = false;
 	}
-
+        if(glewInit() != GLEW_OK)
+	{
+          success = false;
+        }
 	return success;
 }
 

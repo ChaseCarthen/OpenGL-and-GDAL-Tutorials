@@ -1,4 +1,12 @@
+#include <iostream>
+using namespace std;
+#if defined(__APPLE__) || defined(MACOSX)
 #include <OpenGL/gl3.h>
+#else //linux as default
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
+#endif
 #include <stdlib.h>
 #ifndef _GBUFFER_H_
 #define _GBUFFER_H_

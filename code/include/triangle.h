@@ -1,4 +1,11 @@
+#if defined(__APPLE__) || defined(MACOSX)
 #include <OpenGL/gl3.h>
+#else //linux as default
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
+#endif
+
 #include <buffer.h>
 #include <iostream>
 #include <renderable.h>

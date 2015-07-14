@@ -1,4 +1,12 @@
+#if defined(__APPLE__) || defined(MACOSX)
 #include <OpenGL/gl3.h>
+#else //linux as default
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
+#endif
+
+
 #ifndef _BUFFER_H_
 #define _BUFFER_H_
 class buffer
