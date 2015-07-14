@@ -13,7 +13,14 @@ terrain::terrain(string filename)
 
 void terrain::setup()
 {
-	getRawValuesFromFile(fname, vecs, min, max, xres, yres, projection);
+	double x,y;
+	getRawValuesFromFile(fname, vecs, min, max, xres, yres, projection,x,y,width,height);
+	origin.x = x;
+	origin.y = y;
+	end.x = x + xres * (width);
+	end.y = y - yres * (height);
+	char* test = &projection[0];
+	sr.importFromWkt(&test);
 	createMesh(vecs, xres, yres, max, indicies, vertexes);
 
 	Renderer.init();
@@ -52,7 +59,7 @@ void terrain::render(glm::mat4& view, glm::mat4& projection)
 
 	glm::mat4 mvp = projection * view;
 	Renderer.setUniformMatrix4x4("mvp", mvp);
-	Renderer.setUniformMatrix4x4("model",model);
+	Renderer.setUniformMatrix4x4("model", model);
 	Renderer.setUniformFloat("Max", max);
 	Renderer.setUniformFloat("Min", min);
 
@@ -67,4 +74,23 @@ void terrain::cleanup()
 void terrain::SetFile(string filename)
 {
 	fname = filename;
+}
+
+// The point must be in utm and in the same zone.
+float terrain::SampleTerrain(glm::vec2 point)
+{
+
+	// Calculate the normalized points
+	auto normalized = (point-origin)/(end-origin);
+	//normalized.y *= -1;
+	cout << origin.y << " " << end.y << endl;
+	cout << width << " " << height << endl;
+	cout << "NORMALIZED X: " << normalized.x << " NROMALIZED Y: " << normalized.y << endl;
+	if(normalized.x < 1 && normalized.x >= 0 && normalized.y < 1 && normalized.y >= 0)
+	{
+		int locx = (width-1) * normalized.x;
+		int locy = (height-1) * normalized.y;
+		//cout << locx << " " << locy << endl;
+		return vecs[locx][locy];
+	}
 }

@@ -112,6 +112,9 @@ framerenderer fr;
 //string fname = "../data/output_srtm.tif"; //1m_DTM.tif";
 terrain Terrain;
 
+// A memento to the shapfiles..
+shape shap;
+
 GLint VaoId;
 
 high_resolution_clock::time_point current;
@@ -125,6 +128,7 @@ int main(int argc, char** argv)
 	string appPath = argv[0];
 	cout << argv[0] << endl;
 	appPath.erase(appPath.end() - 3, appPath.end());
+
 	// Lets set the application path for this guy
 	AssetManager::SetAppPath(appPath);
 	cout << "HERE @" << endl;
@@ -142,6 +146,8 @@ int main(int argc, char** argv)
 		cout << "INITIALIZED" << endl;
 		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek.tif");
 		Terrain.setup();
+		shap.load(AssetManager::GetAppPath() + "../../data/streamDCEW2/stream2.shp");
+		shap.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
 		//Main loop flag
 		quit = false;
 
@@ -330,10 +336,11 @@ void render()
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	Terrain.render(view, projection);
+	shap.render(view,projection);
 	GBuffer::DefaultBuffer();
 	return;
 }

@@ -21,6 +21,15 @@ public:
 	void render(glm::mat4& view, glm::mat4& projection);
 	void cleanup();
 	void SetFile(string filename);
+	float SampleTerrain(glm::vec2 point);
+	glm::vec2 GetOrigin()
+	{
+		return origin;
+	};
+	OGRSpatialReference* GetProjection()
+	{
+		return &sr;
+	}
 private:
 	float** terrainData;
 	buffer elements;
@@ -30,6 +39,10 @@ private:
 	vector<vector<float>> vecs;
 	vector<Vertex> vertexes;
 	vector<int> indicies;
+	OGRSpatialReference sr;
+	glm::vec2 origin;
+	glm::vec2 end;
+	int width,height;
 };
 
 #endif

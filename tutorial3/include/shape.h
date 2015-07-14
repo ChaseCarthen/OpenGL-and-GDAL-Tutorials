@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
-
+#include <AssetManager.h>
 using namespace std;
 
 #ifndef _SHAPE_H_

@@ -23,6 +23,7 @@
 //gdal
 #include <gdal.h>
 #include <gdal_priv.h>
+#include <gdalwarper.h>
 //#include <cpl_conv.h>
 #include <ogrsf_frmts.h>
 //#include <gdal_priv.h>
@@ -42,7 +43,7 @@ struct Vertex
     glm::vec2 uv;
 };
 
-bool getRawValuesFromFile(string fname,vector<vector<float>>& vecs,float& min, float& max,float& xres, float& yres, string& projection);
+bool getRawValuesFromFile(string fname,vector<vector<float>>& vecs,float& min, float& max,float& xres, float& yres, string& projection,double& XORIGIN,double& YORIGIN,int& W, int& H);
 
 void bilinearintertop(vector<vector<float>>& input, int width, int height);
 

@@ -64,6 +64,7 @@ bool shape::load(string filename)
             	double y = p.getY();
             	points[points.size()-1].push_back(glm::vec2(x,y));
             	//poTransform->Transform (1, &x, &y);
+                //cout << "POINT" << p.getX() << " " << p.getY() << endl;
             }
         }  
         else if (poGeometry != NULL 
@@ -97,18 +98,14 @@ bool shape::createMesh(OGRSpatialReference* sr2,glm::vec2 origin,glm::vec2 scale
 	vector<Vertex> vertexs = {};
 	vector<int> indicies = {};
     Renderer.init();
-    GLuint vertex_shader2;
-    GLuint frag_shader2;
-    vertex_shader2 = glCreateShader(GL_VERTEX_SHADER);
 
-    frag_shader2 = glCreateShader(GL_FRAGMENT_SHADER);
     cout << "LINE RENDERER CREATOR" << endl;
-    if(!Renderer.addShader(vertex_shader2,"../shaders/linevert.shader"))
+    if(!Renderer.addShader(GL_VERTEX_SHADER,AssetManager::GetAppPath() + "../../code/shader/linevert.shader"))
     {
       cout << "Failed to add shader" << endl;
       return false;
     }
-    if(!Renderer.addShader(frag_shader2,"../shaders/linefrag.shader"))
+    if(!Renderer.addShader(GL_FRAGMENT_SHADER,AssetManager::GetAppPath() + "../../code/shader/linefrag.shader"))
     {
         cout << "Failed to add shader" << endl;
         return false;
@@ -150,15 +147,15 @@ bool shape::createMesh(OGRSpatialReference* sr2,glm::vec2 origin,glm::vec2 scale
             //points[points.size()-1].push_back(glm::vec2(x,y));
             transform->Transform (1, &x, &y);
             glm::vec2 orig = glm::vec2(x,y);
-            x = abs(x -origin.x) *scale.x;
-            y = abs(y-origin.y)*scale.y;
+            x = x - origin.x;
+            y = origin.y-y;
 
-			Vertex temp = {{(float)y,(float)10,(float)x},{(float)1,(float)0,(float)0},{(float)1,(float)1}};
+			Vertex temp = {{(float)x,(float)t.SampleTerrain(orig),(float)y},{(float)1,(float)0,(float)0},{(float)1,(float)1}};
             //cout << "Vertex: " << temp.position.x << " " << temp.position.y << " " << temp.position.z << endl;
             if(first)
             {
 			 vertexs.push_back(temp);
-			 temp.position.y += 2;
+			 temp.position.y += 100;
 			 vertexs.push_back(temp);
              first = false;
             }
@@ -166,15 +163,18 @@ bool shape::createMesh(OGRSpatialReference* sr2,glm::vec2 origin,glm::vec2 scale
 			{
 				x = points[i][j+1].x;
             	y = points[i][j+1].y;
+                //cout << "Before" << x << " " << y << endl;
                 transform->Transform (1, &x, &y);
+                //cout << "After" << x << " " << y << " " << origin.x << " " << origin.y<< endl;
                 orig = glm::vec2(x,y);
-                x = abs(x -origin.x) *scale.x;
-                y = abs(y-origin.y)*scale.y;
+                x = x -origin.x;
+                y = origin.y-y;
 
-				Vertex temp2 = {{(float)y,(float)10,(float)x},{(float)1,(float)0,(float)0},{1,1}};
-                //cout << "Vertex: " << temp2.position.x << " " << temp2.position.y << " " << temp2.position.z << endl;
+				Vertex temp2 = {{(float)x,(float)t.SampleTerrain(orig),(float)y},{(float)1,(float)0,(float)0},{1,1}};
+                cout << "Vertex: " << temp2.position.x << " " << temp2.position.y << " " << temp2.position.z << endl;
+                //cout << "ORIGIN: " << origin.x << " " << origin.y << " " << temp2.position.z << endl;
 				vertexs.push_back(temp2);
-				temp2.position.y += 2;
+				temp2.position.y += 100;
 				vertexs.push_back(temp2);
                 // Triangulate!
                 indicies.push_back(vertexs.size()-3);
@@ -213,9 +213,9 @@ void shape::render(glm::mat4& view, glm::mat4& projection)
     Renderer.useProgram();
 
     Renderer.setUniformMatrix4x4("mvpMatrix",mvp);
-
+    Renderer.setUniformMatrix4x4("model",model);
     Renderer.enableVertexAttribPointer("v_position");
-    Renderer.enableVertexAttribPointer("v_color");
+    //Renderer.enableVertexAttribPointer("v_color");
 
     vbo_geometry.bindBuffer();
 
@@ -226,6 +226,6 @@ void shape::render(glm::mat4& view, glm::mat4& projection)
     elements.bindBuffer();
 
     Renderer.render(veccount);
-    Renderer.disableVertexAttribPointer("v_color");
+    //Renderer.disableVertexAttribPointer("v_color");
     Renderer.disableVertexAttribPointer("v_position");  
 }
