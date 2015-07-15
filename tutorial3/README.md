@@ -210,3 +210,16 @@ float terrain::SampleTerrain(glm::vec2 point)
 }
 ```
 
+**Example**
+-----
+
+To run this tutorial: 
+```bash
+cd build
+make
+../bin/out
+```
+
+**Example Screenshot**
+
+**Verification Screenshot**
