@@ -91,7 +91,8 @@ for(int i = 0; i < width; i++)
 
 **NOTE for any tiff do this**
 ```bash
-gdalwarp -t_srs epsg:4326 sometif.tif # this will put your tiff into lat long and get rid of any funky projections.
+gdalwarp -t_srs epsg:4326 sometif.tif converted.tif
+# this will put your tiff into lat long and get rid of any funky projections.
 # in plus gdal will do some magic to make sure the image stays the same size.
 ```
 
