@@ -94,8 +94,17 @@ I have only scrathed surface of pulling data out of shapes, but it is enough to 
 ---------
 Shapes are interesting in the fact that they can be points, lines, or polygons. They can be visualized in 2D as an image or in 3D in several different various ways. This tutorial will show you how to make lines and polygons into ribbons. For example a single line would be equivalent to a single ribbon or a line that has line height. Single points will be visualized as a rectangle facing in one direction (in my code they are facing the z axis).
 
+
 **Building the Shapes**
+
 ``` c++
+// sr = layer->GetSpatialRef(); is the shapes projection
+// sr2 is the coordinate system that you want to keep all of your shapes in and your origin should be in
+if (sr != NULL)
+{
+    transform = OGRCreateCoordinateTransformation( sr, sr2 );
+}
+
 for (int i = 0; i < points.size(); i++)
 {
     first = true;
@@ -161,8 +170,43 @@ for (int i = 0; i < points.size(); i++)
     }
 }
 ```
-**Issues, Issues, Issues.**
--------
+The idea behind building the visualizaiton for these lines is very simple. For each point we simple just add another point above the current point and for each pair of four points we create a rectangle by triangulating the four points. For a single point we create a rectangle (that can later be replaced with a cube or cyclinder). 
 
-**How to shape up the visualization.**
--------
+**Issues, Issues, Issues.**
+However, one issue that we are avoiding in creating these ribbons is where they will be placed with respect to some terrain or surface. Effectively we need to create a function that will sample a terrain or surface for the height this shape needs to be placed at. Considering the fact that this surface or terrain will have some GIS information attached to it, this information can be used to place the shapes into the correct spot. Since surfaces and terrains are mainly built from rasters, we can sample from the raster to get a height value by picking the nearest height value in the raster (or even better interpolate the height value between two or four pixels). 
+
+**Note: I am assuming that the north west corner of the terrain is the origin ( (x=0,y=?,z=0) in opengl) and is the point of reference to place the shapes.**
+
+We can place everything with respect to the terrain's north west corner:
+```c++
+// we need to project x into the same coordinate system as the origin's coordinate system
+
+// x is the shapes east-west coordinate / origin is the terrain north west corner (or what you consider to be the terrain origin)
+x = x - origin.x;
+
+// same as above
+y = origin.y - y;
+```
+
+Here is some code that demonstrates sampling from a raster:
+```c++
+// The point must be in utm and in the same zone.
+float terrain::SampleTerrain(glm::vec2 point)
+{
+
+	// Calculate the normalized points
+	auto normalized = (point-origin)/(end-origin);
+	//normalized.y *= -1;
+	cout << origin.y << " " << end.y << endl;
+	cout << width << " " << height << endl;
+	cout << "NORMALIZED X: " << normalized.x << " NROMALIZED Y: " << normalized.y << endl;
+	if(normalized.x < 1 && normalized.x >= 0 && normalized.y < 1 && normalized.y >= 0)
+	{
+		int locx = (width-1) * normalized.x;
+		int locy = (height-1) * normalized.y;
+		//cout << locx << " " << locy << endl;
+		return vecs[locx][locy];
+	}
+}
+```
+
