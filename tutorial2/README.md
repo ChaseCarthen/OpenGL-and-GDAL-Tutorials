@@ -13,6 +13,10 @@ Required Readings
 * Deferred vs Forward Shading : http://gamedevelopment.tutsplus.com/articles/forward-rendering-vs-deferred-rendering--gamedev-12342
 * http://www.gdal.org/gdal_tutorial.html
 
+**Suggested Software for valdation of your terrain**
+QGIS -- Simple to use. 
+As easy as dragging and dropping your geotif data into the program to view it.
+
 **Steps for building a Terrain**
 -----
 1. Load the Data
@@ -74,19 +78,28 @@ for(int i = 0; i < width; i++)
 {
   for(int j = 0; j < height; j++)
   {
-    if(pafScanline[(height-1-i)*width+j] > 0)
-      out[width-i-1][j] = pafScanline[(height-1-i)*width+j];
+    if(pafScanline[(i)*width+j] > 0)
+      out[i][j] = pafScanline[(i)*width+j];
     else
-      out[width-i-1][j] = 0;
+      out[i][j] = 0;
   }
 }
 ```
 
 **Getting the Geospatial Data**
 -----
+
+**NOTE for any tiff do this**
+```bash
+gdalwarp -t_srs epsg:4326 sometif.tif converted.tif
+# this will put your tiff into lat long and get rid of any funky projections.
+# in plus gdal will do some magic to make sure the image stays the same size.
+```
+
 From tutorial 1, I discussed everything about projections, width and height of a dataset, the geotransform, and the resolution of pixels. Lets put this to practice in the next code snippet where we will find average pixel resolution and convert coordinates to utm.
 
 One thing about the tif we will be using today is that its bounding box primarily lies within UTM zone 11. Here is a function that will take any lat long point and convert it to UTM zone 11. While this code be a hard coded function for now, an important thing to note is that one should create a function that can handle multiple utm zones and even determine the utm to use. 
+
 ```c++
 void transformToUtm(double& x, double& y)
 {
@@ -115,6 +128,7 @@ void transformToUtm(double& x, double& y)
 All of the code above should be self explantory. An important thing to note about this code is the fact that I am considering on using UTM as opposed to Lat Long. Lat Long is nice as a angular system and not having to worry about what zone you are in, but the distances between to Lat Long points can be considerably small and could have problems with floating point precision. While in UTM the same two Lat Long will be meters apart and the distance will be considerally bigger preventing floating precision errors. The future tutorials will use UTM for placing everything in the world.
 
 Now lets use this transformToUtm function to find the average x and y resolution in utm for the dataset, while getting the utm bounding box for this dataset.
+
 ``` c++
 void ComputeGeoProperties(GDALDataset *poDataset, int width, int height, double& x, double& y,double& xright, double& ybottom, double& xres, double& yres)
 {
@@ -150,12 +164,12 @@ void ComputeGeoProperties(GDALDataset *poDataset, int width, int height, double&
     OGRCoordinateTransformation* poTransform2 = OGRCreateCoordinateTransformation( &sr2, geog2 );
 
     // Compute corners
-    poTransform2->Transform(1,&x,&y);
-    poTransform2->Transform(1,&xright,&ybottom);
+    //poTransform2->Transform(1,&x,&y);
+    //poTransform2->Transform(1,&xright,&ybottom);
 
     // Transform to utm on both corners
-    transformToUtm(x,y);
-    transformToUtm(xright,ybottom);
+    //transformToUtm(x,y);
+    //transformToUtm(xright,ybottom);
     cout << xright << " " << ybottom <<endl;
     
     // Lets compute the absolute width and height in utm
@@ -536,7 +550,7 @@ The controls for the scene are:
 
 <img src="./screenshot.png" width="400">
 
-**Verfication Screenshot**
+**Verfication Screenshot from QGis**
 
 <img src="./screenshot2.png" width="800">
 

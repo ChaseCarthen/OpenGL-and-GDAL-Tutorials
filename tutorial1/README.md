@@ -99,7 +99,7 @@ else
     // Something went wrong
 }
 ```
-Here I am giving an example of the all powerful GDAL geotranform for raster datasets. This Geotransform gives the north east corner of a raster dataset in most cases. This geotransform is in the coordinate system given by the projection in the example above this one. adfGeoTransform[0] and adfGeoTransform[3] give are the north east corner of the dataset. The pixel size is given adfGeoTransform[1] (for east and west) and adfGeoTransform[3] (for north and south). The pixel size represents how wide and long a pixel is for one pixel. For example for a dataset that is 10 x 10 and has a pixel size of 2 x 2 has an area of 400.
+Here I am giving an example of the all powerful GDAL geotranform for raster datasets. This Geotransform gives the north east corner of a raster dataset in most cases. This geotransform is in the coordinate system given by the projection in the example above this one. `adfGeoTransform[0]` and `adfGeoTransform[3]` give are the north east corner of the dataset. The pixel size is given `adfGeoTransform[1]` (for east and west) and `adfGeoTransform[3]` (for north and south). The pixel size represents how wide and long a pixel is for one pixel. For example for a dataset that is 10 x 10 and has a pixel size of 2 x 2 has an area of 400.
 
 The GeoTransform can be used to find bounding box of a dataset or how wide and long it extends out into the world.
 
