@@ -222,4 +222,19 @@ make
 
 **Example Screenshot**
 
+![Example ScreenShot 1](shapeview.png)
+It works.
+
+![Example ScreenShot 2](shapeissue.png)
+But there are issues when you are far away. This can be fixed by making the ribbons taller as you move farway from the terrain or you can turn these shapes into images (but both these are left as an exercise for the reader).
+
 **Verification Screenshot**
+
+![Verification Screenshot](qgis.png)
+
+As you can see the shapes map into the correct spot.
+
+**Finishing Remarks**
+Looking at the second screenshot you will notice that there are issues with the shape and terrain. This is due to z fighting an issue where the terrain and shapes seem to bleed together. This issue can be avoided by turning the shape into an image or making the shape taller. I have left it to the user to build better meshes for the shapes and better placement functions.
+
+In the next tutorial, I will go over projecting images onto a terrain (you can turn shapes into images to project onto the terrain this way). 
