@@ -114,6 +114,8 @@ terrain Terrain;
 
 // A memento to the shapfiles..
 shape shap;
+shape shap2;
+shape shap3;
 
 GLint VaoId;
 
@@ -148,6 +150,10 @@ int main(int argc, char** argv)
 		Terrain.setup();
 		shap.load(AssetManager::GetAppPath() + "../../data/streamDCEW2/stream2.shp");
 		shap.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
+		shap2.load(AssetManager::GetAppPath() + "../../data/boundDCEW/boundDCEW.shp");
+		shap2.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
+		shap3.load(AssetManager::GetAppPath() + "../../data/sitesDCEW2012/DCEWsites2013.shp");
+		shap3.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
 		//Main loop flag
 		quit = false;
 
@@ -341,6 +347,8 @@ void render()
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	Terrain.render(view, projection);
 	shap.render(view,projection);
+	shap2.render(view,projection);
+	shap3.render(view,projection);
 	GBuffer::DefaultBuffer();
 	return;
 }
