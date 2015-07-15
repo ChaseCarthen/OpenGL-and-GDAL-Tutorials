@@ -13,6 +13,10 @@ Required Readings
 * Deferred vs Forward Shading : http://gamedevelopment.tutsplus.com/articles/forward-rendering-vs-deferred-rendering--gamedev-12342
 * http://www.gdal.org/gdal_tutorial.html
 
+**Suggested Software for valdation of your terrain**
+QGIS -- Simple to use. 
+As easy as dragging and dropping your geotif data into the program to view it.
+
 **Steps for building a Terrain**
 -----
 1. Load the Data
@@ -84,6 +88,13 @@ for(int i = 0; i < width; i++)
 
 **Getting the Geospatial Data**
 -----
+
+**NOTE for any tiff do this**
+```bash
+gdalwarp -t_srs epsg:4326 sometif.tif # this will put your tiff into lat long and get rid of any funky projections.
+# in plus gdal will do some magic to make sure the image stays the same size.
+```
+
 From tutorial 1, I discussed everything about projections, width and height of a dataset, the geotransform, and the resolution of pixels. Lets put this to practice in the next code snippet where we will find average pixel resolution and convert coordinates to utm.
 
 One thing about the tif we will be using today is that its bounding box primarily lies within UTM zone 11. Here is a function that will take any lat long point and convert it to UTM zone 11. While this code be a hard coded function for now, an important thing to note is that one should create a function that can handle multiple utm zones and even determine the utm to use. 
@@ -538,7 +549,7 @@ The controls for the scene are:
 
 <img src="./screenshot.png" width="400">
 
-**Verfication Screenshot**
+**Verfication Screenshot from QGis**
 
 <img src="./screenshot2.png" width="800">
 
