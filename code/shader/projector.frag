@@ -36,20 +36,14 @@ void main()
   // Just a pass through for now
   vec3 pos = texture(gPositionMap,TexCoord).xyz;
   vec4 test = (tex * projection * view * vec4(pos,1.0));
-  vec2 uv = test.xy/test.ww;
-  //uv.x = uv.x / 2.0f + 0.5f;
-  //uv.y = -uv.y / 2.0f + 0.5f;
-  //if( test.w > 0&& clamp(uv.x,0.0,1.0) == uv.x && clamp(uv.y,0.0,1.0) == uv.y )
-  //DiffuseOut = texture(gColorMap, TexCoord).xyz  + vec3(1,0,0);
-  //else
-  //DiffuseOut = texture(gColorMap, TexCoord).xyz  + vec3(0,1,0);
-  if( test.x >= 0 && test.x <= 1 && test.y >= 0 && test.y <= 1)
+  vec2 uv = test.xy;
+  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1)
   {
-  DiffuseOut = vec3(1,1,0.0);
+  DiffuseOut = vec3(uv.xyy);
   }
   else
   {
-    DiffuseOut = vec3(test.w,0,pos.x);
+    DiffuseOut = vec3(0,0,pos.x);
   }
   //DiffuseOut = TexCoord.xyx;
   //NormalOut = texture(gNormalMap,TexCoord).xyz;
