@@ -341,6 +341,103 @@ void generateTexture(string fname, GLuint& tex, int bandnum)
   return;
 }
 
+void generateImageTexture(string fname, GLuint& tex)
+{
+
+  if (bandnum <= 0 )
+  {
+    bandnum = 1;
+  }
+  GDALDataset *poDataset;
+  GDALAllRegister();
+  poDataset = (GDALDataset*) GDALOpen(fname.c_str(), GA_ReadOnly);
+  if (poDataset == NULL)
+  {
+    cout << "OUCH!" << endl;
+    //exit(0);
+    return;
+  }
+  cout << "Data size: " << GDALGetRasterXSize(poDataset) << " " << GDALGetRasterYSize(poDataset) << endl;
+  int width = GDALGetRasterXSize(poDataset);
+  int height = GDALGetRasterYSize(poDataset);
+
+  GDALRasterBand  *poBand;
+  int             nBlockXSize, nBlockYSize;
+  int             bGotMin, bGotMax;
+  double          adfMinMax[2];
+  int bands = poDataset->GetRasterCount();
+   for (int i = 0; i < numbands; i++ )
+   {
+    
+   }
+  // Get all of the bands 
+
+
+  /*bandnum = bandnum % bands + 1;
+  if (bandnum > bands)
+  {
+    bandnum = 1;
+  }
+  poBand = poDataset->GetRasterBand( bandnum );
+  poBand->GetBlockSize( &nBlockXSize, &nBlockYSize );
+  printf( "Block=%dx%d Type=%s, ColorInterp=%s\n",
+          nBlockXSize, nBlockYSize,
+          GDALGetDataTypeName(poBand->GetRasterDataType()),
+          GDALGetColorInterpretationName(
+            poBand->GetColorInterpretation()) );
+
+  float max = adfMinMax[0] = poBand->GetMinimum( &bGotMin );
+  float min = adfMinMax[1] = poBand->GetMaximum( &bGotMax );
+  if ( ! (bGotMin && bGotMax) )
+    GDALComputeRasterMinMax((GDALRasterBandH)poBand, TRUE, adfMinMax);
+  int width = poBand->GetXSize();
+  int height = poBand->GetYSize();
+
+  float *pafScanline;
+  std::cout << "Before allocation" << adfMinMax[0] << " " << adfMinMax[1] << endl;
+  min = adfMinMax[0];
+  max = adfMinMax[1];
+  int dsize = 256;
+  pafScanline = (float *) CPLMalloc(sizeof(float) * 512 * 512);
+  vector<vector<float>> out = vector<vector<float>>(height, vector<float> (width, 0));
+  //vector<vector<unsigned char>> texs = vector<vector<unsigned char>>(height,vector<unsigned char> (width,0));
+  unsigned char texs[512 * 512];
+  poBand->RasterIO(GF_Read, 0, 0, width, height, pafScanline, 512, 512, GDT_Float32, 0, 0);
+  float no = poBand->GetNoDataValue();
+  cout << "NO DATA VALUE: " << no << endl;
+  cout << "After allocation" << endl;
+  for (int i = 0; i < 512; i++)
+  {
+    for (int j = 0; j < 512; j++)
+    {
+      //cout << i << j << endl << pafS;
+      if (pafScanline[i * width + j] != no)
+      {
+        // set tex val
+        texs[i * 512 + j] = (unsigned char)(255 * abs((pafScanline[i * 512 + j] - min) / (max - min)));
+        //if(pafScanline[i*512+j] > 0)
+        //cout << (int)texs[i*512 +j] << " " << pafScanline[i*512+j] << " " << no << " " << fname << " " << min << " " << max << endl;
+      }
+      else
+      {
+        // Set zero val
+        texs[i * 512 + j] = 0;
+      }
+    }
+  }
+  CPLFree(pafScanline);
+
+  // Create a texture
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, texs);*/
+  GDALClose( (GDALDatasetH) poDataset);
+
+  return;
+}
+
 
 vec3 ComputeNormal(vec3 center, int i, int j, int width, int height, vector<vector<float>>& data, float Max, float xres, float yres )
 {
