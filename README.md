@@ -27,4 +27,5 @@ When working with your own repo and you wish to push your own geotiffs to your o
 echo '*.tif -delta' > .gitattributes
 git gc
 ```
+This will make it so git does not have to spend time compressing your already compressed geotiff(depends if it is) or other compressed formats. 
 ref. http://stackoverflow.com/questions/7102053/git-pull-without-remotely-compressing-objects
