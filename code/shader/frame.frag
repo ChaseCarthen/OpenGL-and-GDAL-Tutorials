@@ -51,5 +51,5 @@ void main()
     }
 
 
-   	FragColor = vec4(Color* (AmbientColor + DiffuseColor + SpecularColor),.5);
+   	FragColor = vec4(Color* (AmbientColor + DiffuseColor + SpecularColor),.7);
 }

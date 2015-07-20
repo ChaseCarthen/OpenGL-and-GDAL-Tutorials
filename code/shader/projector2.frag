@@ -41,7 +41,7 @@ void main()
   vec2 uv = test.xy;
   if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1)
   {
-  DiffuseOut = vec4(mix(vec3(0,0,0),vec3(1,1,1),texture(proj_tex,uv.xy).r),.5);
+  DiffuseOut = vec4(mix(vec3(0,0,0),vec3(1,1,1),texture(proj_tex,uv.xy).r),.8);
   }
   else
   {
