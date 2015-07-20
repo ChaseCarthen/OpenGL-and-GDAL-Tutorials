@@ -27,7 +27,7 @@ vec2 CalcTexCoord()
 }
 
 //layout (location = 0) out vec3 WorldPosOut; 
-layout (location = 1) out vec3 DiffuseOut; 
+layout (location = 0) out vec4 DiffuseOut; 
 //layout (location = 2) out vec3 NormalOut;  
 
 void main()
@@ -41,13 +41,13 @@ void main()
   vec2 uv = test.xy;
   if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1)
   {
-  DiffuseOut = diffuse + mix(vec3(0,0,0),vec3(1,1,1),texture(proj_tex,uv.xy).r);
+  DiffuseOut = vec4(mix(vec3(0,0,0),vec3(1,1,1),texture(proj_tex,uv.xy).r),.5);
   }
   else
   {
     //DiffuseOut = vec3(0,0,0);
     discard;
-    //DiffuseOut = texture(gColorMap,TexCoord).xyz;
+    //DiffuseOut = texture(gColorMap,TexCoord).xyzw;
   }
   //DiffuseOut = TexCoord.xyx;
   //NormalOut = texture(gNormalMap,TexCoord).xyz;

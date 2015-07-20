@@ -46,6 +46,8 @@ void terrain::update(float dt)
 
 void terrain::render(glm::mat4& view, glm::mat4& projection)
 {
+	//model = glm::mat4(1);
+	//model = glm::translate(model,glm::vec3(1000,1000,1000));
 	Renderer.useProgram();
 
 	elements.bindBuffer();

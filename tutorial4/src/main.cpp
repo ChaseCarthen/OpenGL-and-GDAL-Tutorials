@@ -382,6 +382,13 @@ void render()
 	glm::mat4 projection = Camera.getProjection();
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
+        pr7.render(view,projection);
+	pr.render(view,projection);
+	pr2.render(view,projection);
+	pr3.render(view,projection);
+	pr4.render(view,projection);
+	pr5.render(view,projection);
+	pr6.render(view,projection);
 	fr.render(view, projection);
 	
 	GBuffer::BindForWriting();
@@ -402,13 +409,13 @@ void render()
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-	pr.render(view,projection);
-	pr2.render(view,projection);
-	pr3.render(view,projection);
-	pr4.render(view,projection);
-	pr5.render(view,projection);
-	pr6.render(view,projection);
-	pr7.render(view,projection);
+    glBlendEquation(GL_FUNC_ADD);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+
+	
+    //glDisable(GL_BLEND);
+
 	GBuffer::DefaultBuffer();
 	return;
 }
