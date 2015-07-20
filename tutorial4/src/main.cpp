@@ -110,6 +110,13 @@ camera Camera;
 
 framerenderer fr;
 projector pr;
+projector pr2;
+projector pr3;
+projector pr4;
+projector pr5;
+projector pr6;
+projector pr7;
+
 //string fname = "../data/output_srtm.tif"; //1m_DTM.tif";
 terrain Terrain;
 
@@ -126,6 +133,8 @@ bool quit;
 
 int main(int argc, char** argv)
 {
+	GLuint test;
+	
 	renderer Renderer = renderer();
 
 	string appPath = argv[0];
@@ -147,7 +156,8 @@ int main(int argc, char** argv)
 	else
 	{
 		cout << "INITIALIZED" << endl;
-		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek.tif");
+
+		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek2.tif");
 		Terrain.setup();
 		shap.load(AssetManager::GetAppPath() + "../../data/streamDCEW2/stream2.shp");
 		shap.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
@@ -155,6 +165,14 @@ int main(int argc, char** argv)
 		shap2.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
 		shap3.load(AssetManager::GetAppPath() + "../../data/sitesDCEW2012/DCEWsites2013.shp");
 		shap3.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
+		
+		pr.setToMainCoordinateSystem(Terrain.GetProjection(),Terrain.GetOrigin());
+		pr2.setToMainCoordinateSystem(Terrain.GetProjection(),Terrain.GetOrigin());
+		pr3.setToMainCoordinateSystem(Terrain.GetProjection(),Terrain.GetOrigin());
+		pr4.setToMainCoordinateSystem(Terrain.GetProjection(),Terrain.GetOrigin());
+		pr5.setToMainCoordinateSystem(Terrain.GetProjection(),Terrain.GetOrigin());
+		pr6.setToMainCoordinateSystem(Terrain.GetProjection(),Terrain.GetOrigin());
+		pr7.setToMainCoordinateSystem(Terrain.GetProjection(),Terrain.GetOrigin());
 		//Main loop flag
 		quit = false;
 
@@ -292,10 +310,37 @@ bool init()
 
 				//cout << glGetString(GL_VERSION) << endl;
 				cout << "GUFFER SUCCESS: " << GBuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT) << endl;
+				
 				fr.setup();
-				pr.setup();
 				fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+				pr.setFile(AssetManager::GetAppPath() + "../../data/satellite/res.tif");
+				pr.setup();
 				pr.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+				pr2.setFile(AssetManager::GetAppPath() + "../../data/satellite/res2.tif");
+				pr2.setup();
+				pr2.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+				pr3.setFile(AssetManager::GetAppPath() + "../../data/satellite/res3.tif");
+				pr3.setup();
+				pr3.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+				pr4.setFile(AssetManager::GetAppPath() + "../../data/satellite/res4.tif");
+				pr4.setup();
+				pr4.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+				pr5.setFile(AssetManager::GetAppPath() + "../../data/satellite/res5.tif");
+				pr5.setup();
+				pr5.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+				pr6.setFile(AssetManager::GetAppPath() + "../../data/satellite/res6.tif");
+				pr6.setup();
+				pr6.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+				pr7.setFile(AssetManager::GetAppPath() + "../../data/em.1000.tif",projector::PROJECTOR_TYPE::DATA);
+				pr7.setup();
+				pr7.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
 			}
 		}
 	}
@@ -337,14 +382,15 @@ void render()
 	glm::mat4 projection = Camera.getProjection();
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
-	//fr.render(view, projection);
-	pr.render(view,projection);
+	fr.render(view, projection);
+	
 	GBuffer::BindForWriting();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	glDisable(GL_BLEND);
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_FRONT);
 	glClearColor( 0.f, 0.f, 0.0f, 0.f );
@@ -352,7 +398,17 @@ void render()
 	shap.render(view,projection);
 	shap2.render(view,projection);
 	shap3.render(view,projection);
-	
+	//glDepthMask(GL_FALSE);
+
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+	pr.render(view,projection);
+	pr2.render(view,projection);
+	pr3.render(view,projection);
+	pr4.render(view,projection);
+	pr5.render(view,projection);
+	pr6.render(view,projection);
+	pr7.render(view,projection);
 	GBuffer::DefaultBuffer();
 	return;
 }

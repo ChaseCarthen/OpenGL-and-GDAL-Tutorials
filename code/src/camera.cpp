@@ -101,7 +101,7 @@ void camera::update()
     motionvector = glm::vec3(0, 0, 0);
     //angleX = 0;
     //angleY = 0;
-    std::cout << position.x << " " << position.y << " " << position.z << std::endl;
+    //std::cout << position.x << " " << position.y << " " << position.z << std::endl;
 }
 
 void camera::resetHorizontalSpeed()

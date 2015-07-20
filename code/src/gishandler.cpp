@@ -300,7 +300,7 @@ void generateTexture(string fname, GLuint& tex, int bandnum)
   std::cout << "Before allocation" << adfMinMax[0] << " " << adfMinMax[1] << endl;
   min = adfMinMax[0];
   max = adfMinMax[1];
-  int dsize = 256;
+
   pafScanline = (float *) CPLMalloc(sizeof(float) * 512 * 512);
   vector<vector<float>> out = vector<vector<float>>(height, vector<float> (width, 0));
   //vector<vector<unsigned char>> texs = vector<vector<unsigned char>>(height,vector<unsigned char> (width,0));
@@ -341,7 +341,8 @@ void generateTexture(string fname, GLuint& tex, int bandnum)
   return;
 }
 
-void generateImageTexture(string fname, GLuint& tex)
+
+void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,double& xorigin, double& yorigin, int& width, int& height, double& xres, double& yres)
 {
 
   if (bandnum <= 0 )
@@ -357,23 +358,16 @@ void generateImageTexture(string fname, GLuint& tex)
     //exit(0);
     return;
   }
-  cout << "Data size: " << GDALGetRasterXSize(poDataset) << " " << GDALGetRasterYSize(poDataset) << endl;
-  int width = GDALGetRasterXSize(poDataset);
-  int height = GDALGetRasterYSize(poDataset);
+  projection = string(poDataset->GetProjectionRef());
+  width = GDALGetRasterXSize(poDataset);
+  height = GDALGetRasterYSize(poDataset);
 
   GDALRasterBand  *poBand;
   int             nBlockXSize, nBlockYSize;
   int             bGotMin, bGotMax;
   double          adfMinMax[2];
   int bands = poDataset->GetRasterCount();
-   for (int i = 0; i < numbands; i++ )
-   {
-    
-   }
-  // Get all of the bands 
-
-
-  /*bandnum = bandnum % bands + 1;
+  bandnum = bandnum % bands + 1;
   if (bandnum > bands)
   {
     bandnum = 1;
@@ -390,22 +384,20 @@ void generateImageTexture(string fname, GLuint& tex)
   float min = adfMinMax[1] = poBand->GetMaximum( &bGotMax );
   if ( ! (bGotMin && bGotMax) )
     GDALComputeRasterMinMax((GDALRasterBandH)poBand, TRUE, adfMinMax);
-  int width = poBand->GetXSize();
-  int height = poBand->GetYSize();
+
 
   float *pafScanline;
   std::cout << "Before allocation" << adfMinMax[0] << " " << adfMinMax[1] << endl;
   min = adfMinMax[0];
   max = adfMinMax[1];
-  int dsize = 256;
+
   pafScanline = (float *) CPLMalloc(sizeof(float) * 512 * 512);
   vector<vector<float>> out = vector<vector<float>>(height, vector<float> (width, 0));
   //vector<vector<unsigned char>> texs = vector<vector<unsigned char>>(height,vector<unsigned char> (width,0));
   unsigned char texs[512 * 512];
   poBand->RasterIO(GF_Read, 0, 0, width, height, pafScanline, 512, 512, GDT_Float32, 0, 0);
   float no = poBand->GetNoDataValue();
-  cout << "NO DATA VALUE: " << no << endl;
-  cout << "After allocation" << endl;
+
   for (int i = 0; i < 512; i++)
   {
     for (int j = 0; j < 512; j++)
@@ -426,13 +418,95 @@ void generateImageTexture(string fname, GLuint& tex)
     }
   }
   CPLFree(pafScanline);
+  double xright,ybottom;
+  ComputeGeoProperties(poDataset, width, height, xorigin, yorigin, xright, ybottom, xres, yres);
+  width = height = 512;
+  xres = (xright - xorigin)/512.0f;
+  yres = (yorigin - ybottom)/512.0f;
 
   // Create a texture
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, texs);*/
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, texs);
+  GDALClose( (GDALDatasetH) poDataset);
+
+  return;
+}
+
+void generateImageTexture(string fname, GLuint& tex, string& projection,double& xorigin, double& yorigin, int& width, int& height, double& xres, double& yres)
+{
+
+  GDALDataset *poDataset;
+  GDALAllRegister();
+  poDataset = (GDALDataset*) GDALOpen(fname.c_str(), GA_ReadOnly);
+  if (poDataset == NULL)
+  {
+    cout << "OUCH!" << endl;
+    //exit(0);
+    return;
+  }
+  cout << "Data size: " << GDALGetRasterXSize(poDataset) << " " << GDALGetRasterYSize(poDataset) << endl;
+  width = GDALGetRasterXSize(poDataset);
+  height = GDALGetRasterYSize(poDataset);
+
+  GDALRasterBand  *poBand;
+  int             nBlockXSize, nBlockYSize;
+  int             bGotMin, bGotMax;
+  double          adfMinMax[2];
+  int numbands = poDataset->GetRasterCount();
+  cout << numbands << endl;
+  if(numbands != 4)
+  {
+    cerr << "NOT FOUR BANDS!!!" << endl;
+    GDALClose( (GDALDatasetH) poDataset);
+    return;
+  }
+
+  // yay stack allocation -- replace with dynamic in the future
+  unsigned char** data;
+  unsigned char* packeddata;
+
+  data = new unsigned char*[numbands];
+  packeddata = new unsigned char[numbands*width*height];
+
+  for (int i = 0; i < numbands; i++ )
+  {
+      data[i] = new unsigned char[width*height];
+      cout << i << endl;
+      GDALRasterBand  *poBand;
+      poBand = poDataset->GetRasterBand( i+1 );
+      // Used unsiged ints for data type
+      poBand->RasterIO(GF_Read, 0, 0, width, height, data[i], width, height, GDT_Byte, 0, 0);
+      cout << (int)data[i][0] << endl;
+  }
+
+  for(int i =0; i < width*height; i++)
+  {
+    packeddata[i*4] = data[0][i];
+    packeddata[i*4+1] = data[1][i];
+    packeddata[i*4+2] = data[2][i];
+    packeddata[i*4+3] = data[3][i];
+  }
+
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &packeddata[0]);
+
+  // Clean up some allocated data
+  delete []packeddata;
+
+  for(int i = 0; i < numbands; i++)
+  {
+    delete []data[i];
+  }
+  delete []data;
+  projection = string(poDataset->GetProjectionRef());
+  double xright,ybottom;
+  ComputeGeoProperties(poDataset, width, height, xorigin, yorigin, xright, ybottom, xres, yres);
   GDALClose( (GDALDatasetH) poDataset);
 
   return;

@@ -1,8 +1,9 @@
 #version 330 
 uniform sampler2D gPositionMap; 
 uniform sampler2D gColorMap; 
-uniform sampler2D gNormalMap; 
-//uniform Sampler2D gTexCoordMap;
+uniform sampler2D gNormalMap;
+
+uniform sampler2D proj_tex; 
 
 uniform vec3 dirlight;
 uniform vec3 color;
@@ -26,7 +27,7 @@ vec2 CalcTexCoord()
 }
 
 //layout (location = 0) out vec3 WorldPosOut; 
-layout (location = 0) out vec3 DiffuseOut; 
+layout (location = 1) out vec3 DiffuseOut; 
 //layout (location = 2) out vec3 NormalOut;  
 
 void main()
@@ -35,15 +36,18 @@ void main()
 
   // Just a pass through for now
   vec3 pos = texture(gPositionMap,TexCoord).xyz;
+  vec3 diffuse = texture(gColorMap,TexCoord).xyz;
   vec4 test = (tex * projection * view * vec4(pos,1.0));
   vec2 uv = test.xy;
   if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1)
   {
-  DiffuseOut = vec3(uv.xyy);
+  DiffuseOut = diffuse*texture(proj_tex,uv.xy).xyz;//vec3(uv.xyy);
   }
   else
   {
-    DiffuseOut = vec3(0,0,pos.x);
+    //DiffuseOut = texture(gColorMap,TexCoord).xyz;
+    discard;
+    //DiffuseOut = texture(gColorMap,TexCoord).xyz;
   }
   //DiffuseOut = TexCoord.xyx;
   //NormalOut = texture(gNormalMap,TexCoord).xyz;
