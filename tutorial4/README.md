@@ -16,6 +16,6 @@ Required Readings
 ![Resulting Screenshot](application.png)
 **Verification Screenshot**
 ![qgis screenshot](qgis.png)
-
+![qgis second screenshot](qgis2.png)
 
 **Still under construction.. but to get a head start look at the following https://developer.nvidia.com/system/files/akamai/gamedev/docs/projective_texture_mapping.pdf. **
