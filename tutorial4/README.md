@@ -435,11 +435,12 @@ As you can see the process of placing the projector into the correct spot and ma
 **How to visualize everything correctly.**
 
 Steps for rendering (Deferred Shading):
+
 1. Do Geometry Pass
 2. Do Lighthing Pass
 3. Do Projection
 
-The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap), while blending in such a way that it is still visible. This will require us to use alpha blending. Here is some code that will alpha blending possible, but it will be up to you the follower of this tutorial to find the right alpha values for blending.
+The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap), while blending in such a way that it is still visible. This will require us to use alpha blending. Here is some code that will alpha blending possible, but it will be up to you the follower of this tutorial to find the right alpha values for blending. Play with the alpha values coming out of your shader.
 
 ```c++
 //geometry pass
