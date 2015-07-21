@@ -100,75 +100,86 @@ Shapes are interesting in the fact that they can be points, lines, or polygons. 
 ``` c++
 // sr = layer->GetSpatialRef(); is the shapes projection
 // sr2 is the coordinate system that you want to keep all of your shapes in and your origin should be in
-if (sr != NULL)
-{
-    transform = OGRCreateCoordinateTransformation( sr, sr2 );
-}
-
-for (int i = 0; i < points.size(); i++)
-{
-    first = true;
-    for (int j = 0; j < points[i].size(); j++)
+// Create a coordinate transform
+    if (sr != NULL)
     {
-        double x = points[i][j].x;
-        double y = points[i][j].y;
-
-        transform->Transform (1, &x, &y);
-        glm::vec2 orig = glm::vec2(x, y);
-        x = x - origin.x;
-        y = origin.y - y;
-
-        Vertex temp = {{(float)x, (float)t.SampleTerrain(orig), (float)y}, {(float)1, (float)0, (float)0}, {(float)1, (float)1}};
-        if (first)
+        transform = OGRCreateCoordinateTransformation( sr, sr2 );
+    }
+    else
+    {
+        return false;
+    }
+    bool first = true;
+    for (int i = 0; i < points.size(); i++)
+    {
+        //break;
+        first = true;
+        for (int j = 0; j < points[i].size(); j++)
         {
-            vertexs.push_back(temp);
-            temp.position.y += 40;
-            vertexs.push_back(temp);
-            first = false;
-            if (j == points[i].size() - 1)
+
+            double x = points[i][j].x;
+            double y = points[i][j].y;
+            //points[points.size()-1].push_back(glm::vec2(x,y));
+            transform->Transform (1, &x, &y);
+            glm::vec2 orig = glm::vec2(x, y);
+            x = x - origin.x;
+            y = origin.y - y;
+
+            Vertex temp = {{(float)x, (float)t.SampleTerrain(orig), (float)y}, {(float)1, (float)0, (float)0}, {(float)1, (float)1}};
+            if (first)
             {
-                temp.position.y -= 40;
-                temp.position.z += 40;
                 vertexs.push_back(temp);
                 temp.position.y += 40;
                 vertexs.push_back(temp);
+                first = false;
+                if (j == points[i].size() - 1)
+                {
+                    //vertexs.push_back(temp);
+                    temp.position.y -= 5;
+                    temp.position.z += 5;
+                    temp.position.y = t.SampleTerrain2(glm::vec2(temp.position.x,temp.position.z));
+                    vertexs.push_back(temp);
+                    temp.position.y += 40;
+
+                    vertexs.push_back(temp);
+                    indicies.push_back(vertexs.size() - 3);
+                    indicies.push_back(vertexs.size() - 1);
+                    indicies.push_back(vertexs.size() - 4);
+                    indicies.push_back(vertexs.size() - 2);
+                    indicies.push_back(vertexs.size() - 4);
+                    indicies.push_back(vertexs.size() - 1);
+                    continue;
+                }
+            }
+            if (j + 1 < points[i].size())
+            {
+                x = points[i][j + 1].x;
+                y = points[i][j + 1].y;
+                //cout << "Before" << x << " " << y << endl;
+                transform->Transform (1, &x, &y);
+                //cout << "After" << x << " " << y << " " << origin.x << " " << origin.y<< endl;
+                orig = glm::vec2(x, y);
+                x = x - origin.x;
+                y = origin.y - y;
+
+                Vertex temp2 = {{(float)x, (float)t.SampleTerrain(orig), (float)y}, {(float)1, (float)0, (float)0}, {1, 1}};
+                cout << "Vertex: " << temp2.position.x << " " << temp2.position.y << " " << temp2.position.z << endl;
+                //cout << "ORIGIN: " << origin.x << " " << origin.y << " " << temp2.position.z << endl;
+                vertexs.push_back(temp2);
+                temp2.position.y += 40;
+                vertexs.push_back(temp2);
+                // Triangulate!
                 indicies.push_back(vertexs.size() - 3);
                 indicies.push_back(vertexs.size() - 1);
                 indicies.push_back(vertexs.size() - 4);
                 indicies.push_back(vertexs.size() - 2);
                 indicies.push_back(vertexs.size() - 4);
                 indicies.push_back(vertexs.size() - 1);
-                continue;
             }
+
+
         }
-        if (j + 1 < points[i].size())
-        {
-            x = points[i][j + 1].x;
-            y = points[i][j + 1].y;
-
-            transform->Transform (1, &x, &y);
-            
-            orig = glm::vec2(x, y);
-            x = x - origin.x;
-            y = origin.y - y;
-
-            Vertex temp2 = {{(float)x, (float)t.SampleTerrain(orig), (float)y}, {(float)1, (float)0, (float)0}, {1, 1}};
-            vertexs.push_back(temp2);
-            temp2.position.y += 40;
-            vertexs.push_back(temp2);
-            
-            // Triangulate!
-            indicies.push_back(vertexs.size() - 3);
-            indicies.push_back(vertexs.size() - 1);
-            indicies.push_back(vertexs.size() - 4);
-            indicies.push_back(vertexs.size() - 2);
-            indicies.push_back(vertexs.size() - 4);
-            indicies.push_back(vertexs.size() - 1);
-        }
-
-
     }
-}
 ```
 The idea behind building the visualizaiton for these lines is very simple. For each point we simple just add another point above the current point and for each pair of four points we create a rectangle by triangulating the four points. For a single point we create a rectangle (that can later be replaced with a cube or cyclinder). 
 
@@ -180,15 +191,17 @@ However, one issue that we are avoiding in creating these ribbons is where they 
 We can place everything with respect to the terrain's north west corner:
 ```c++
 // we need to project x into the same coordinate system as the origin's coordinate system
-
 // x is the shapes east-west coordinate / origin is the terrain north west corner (or what you consider to be the terrain origin)
-x = x - origin.x;
+x = x - origin.x; // this only works because the origin of the terrain is 0,0
+// the correct way would be x - origin.x + worldorigin.x where worldorigin is terrains origin in the opengl coordinate system
 
 // same as above
-y = origin.y - y;
+y = origin.y - y; // this only works because the origin of the terrain is 0,0
+// the correct way would be origin.y - y + worldorigin.y where worldorigin is terrains origin in the opengl coordinate system
+
 ```
 
-Here is some code that demonstrates sampling from a raster:
+Here is some code that demonstrates sampling from a raster when your points are utm points:
 ```c++
 // The point must be in utm and in the same zone.
 float terrain::SampleTerrain(glm::vec2 point)
@@ -209,6 +222,23 @@ float terrain::SampleTerrain(glm::vec2 point)
 	}
 }
 ```
+Here is some code that demonstrates sampling from a raster when your points are in the opengl coordinate system:
+```c++
+float terrain::SampleTerrain2(glm::vec2 point)
+{
+	// Calculate the normalized points
+	auto normalized = (point)/(worldDims);
+
+	if(normalized.x < 1 && normalized.x >= 0 && normalized.y < 1 && normalized.y >= 0)
+	{
+		int locx = (width-1) * normalized.x;
+		int locy = (height-1) * normalized.y;
+
+		return vecs[locx][locy];
+	}
+}
+```
+
 
 **Example**
 -----
