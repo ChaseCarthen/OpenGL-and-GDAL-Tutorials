@@ -21,7 +21,7 @@ vec2 CalcTexCoord()
 {
     return gl_FragCoord.xy / gScreenSize;
 }
-out vec3 FragColor;
+out vec4 FragColor;
 void main()
 {
    	vec2 TexCoord = CalcTexCoord();
@@ -51,5 +51,5 @@ void main()
     }
 
 
-   	FragColor = Color* (AmbientColor + DiffuseColor + SpecularColor);//texture(gNormalMap, TexCoord).xyz;
+   	FragColor = vec4(Color* (AmbientColor + DiffuseColor + SpecularColor),.7);
 }

@@ -49,6 +49,12 @@ void bilinearintertop(vector<vector<float>>& input, int width, int height);
 
 void  generateTexture(string fname, GLuint& tex, int bandnum);
 
+void  generateTexture(string fname, GLuint& tex, int bandnum, string& projection,double& xorigin, double& yorigin, int& width, int& height, double& xres, double& yres);
+
 void createMesh(vector<vector<float>>& input,float xres,float yres,float max, vector<int>& indicies, vector<Vertex>& vertexes);
+
+void generateImageTexture(string fname, GLuint& tex, string& projection,double& xorigin, double& yorigin, int& width, int& height, double& xres, double& yres);
+
+//void retranslateBounds(double xres& double& yres, glmOGRSpatialReference* main,OGRSpatialReference* current);
 
 #endif

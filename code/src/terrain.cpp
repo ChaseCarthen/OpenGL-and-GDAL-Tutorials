@@ -46,6 +46,8 @@ void terrain::update(float dt)
 
 void terrain::render(glm::mat4& view, glm::mat4& projection)
 {
+	//model = glm::mat4(1);
+	//model = glm::translate(model,glm::vec3(1000,1000,1000));
 	Renderer.useProgram();
 
 	elements.bindBuffer();
@@ -83,9 +85,9 @@ float terrain::SampleTerrain(glm::vec2 point)
 	// Calculate the normalized points
 	auto normalized = (point-origin)/(end-origin);
 	//normalized.y *= -1;
-	cout << origin.y << " " << end.y << endl;
-	cout << width << " " << height << endl;
-	cout << "NORMALIZED X: " << normalized.x << " NROMALIZED Y: " << normalized.y << endl;
+	//cout << origin.y << " " << end.y << endl;
+	//cout << width << " " << height << endl;
+	//cout << "NORMALIZED X: " << normalized.x << " NROMALIZED Y: " << normalized.y << endl;
 	if(normalized.x < 1 && normalized.x >= 0 && normalized.y < 1 && normalized.y >= 0)
 	{
 		int locx = (width-1) * normalized.x;
