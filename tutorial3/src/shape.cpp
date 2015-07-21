@@ -163,10 +163,12 @@ bool shape::createMesh(OGRSpatialReference* sr2, glm::vec2 origin, glm::vec2 sca
                 if (j == points[i].size() - 1)
                 {
                     //vertexs.push_back(temp);
-                    temp.position.y -= 40;
-                    temp.position.z += 40;
+                    temp.position.y -= 5;
+                    temp.position.z += 5;
+                    temp.position.y = t.SampleTerrain2(glm::vec2(temp.position.x,temp.position.z));
                     vertexs.push_back(temp);
                     temp.position.y += 40;
+
                     vertexs.push_back(temp);
                     indicies.push_back(vertexs.size() - 3);
                     indicies.push_back(vertexs.size() - 1);
