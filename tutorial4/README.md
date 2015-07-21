@@ -5,6 +5,11 @@ Required Readings
 
 **Projective Texture Mapping**
 
+The idea behind projective texture mapping is to produce a set of uvs that will be used for the purpose of projecting an image onto a surface. Projective texture mapping works very similar to the way to the main camera that is commonly used in OpenGL. Projective texture mapping makes use of its own projection and view matrixes like a main camera, except that everything is being projected into the world on some surface. For now we will refer to projective texture mapping in general terms as a projector.
+
+In the Nvidia paper it throughs two equations at the reader being: 
+![eyelineartexgen.png](eyelineartexgen.png)
+![objectlineartexgen.png](objectlineartexgen.png)
 **Create two types of imagery.**
 
 **Placing the Imagery into the correct spot.**
