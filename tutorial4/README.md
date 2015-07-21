@@ -2,7 +2,12 @@
 
 **Introduction**
 -----
-In this tutorial, I will be talking how to create to use projective mapping to place images onto the terrain we produced in tutorial 4. 
+In this tutorial, I will be talking how to create to use projective mapping to place images onto the terrain we produced in tutorial 4. For this tutorial we will be using drycreek2.tif.
+
+Drycreek2.tif was created with:
+```bash
+gdalwarp -t_srs epsg:26911 drycreek.tif drycreek2.tif # This brings Dry Creek into zone 11. 
+```
 
 Required Readings
 * https://developer.nvidia.com/system/files/akamai/gamedev/docs/projective_texture_mapping.pdf
