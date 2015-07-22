@@ -97,7 +97,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 
 		// enable three textures
 		Renderer.setUniformInteger("gPositionMap", 0);
-		Renderer.setUniformInteger("gColorMap", 1);
+		Renderer.setUniformInteger("gTextureMap", 4);
 		Renderer.setUniformInteger("proj_tex", 5);
 		//Renderer.setUniformInteger("gNormalMap",2);
 		float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
@@ -117,7 +117,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 
 		// enable three textures
 		Renderer.setUniformInteger("gPositionMap", 0);
-		Renderer.setUniformInteger("gColorMap", 1);
+		Renderer.setUniformInteger("gTextureMap", 4);
 		Renderer.setUniformInteger("proj_tex", 5);
 		//Renderer.setUniformInteger("gNormalMap",2);
 		float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};

@@ -397,7 +397,7 @@ void render()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	//glClearColor( 0.f, 0.5f, 0.0f, 0.f );
-	glClearColor( 0.f, 0.f, 0.0f, 0.f );
+	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//glEnable(GL_CULL_FACE);
@@ -410,9 +410,9 @@ void render()
 	//glDepthMask(GL_FALSE);
 
     glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE,GL_ONE);
+    //glEnable(GL_BLEND);
+    //glBlendEquation(GL_FUNC_ADD);
+    //glBlendFunc(GL_ONE,GL_ONE);
 
     //glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
     pr7.render(view,projection);
@@ -423,7 +423,7 @@ void render()
 	pr5.render(view,projection);
 	pr6.render(view,projection);
 	//glBlendFunc(GL_ONE, GL_ZERO);
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND);
 
 	GBuffer::DefaultBuffer();
 	return;
