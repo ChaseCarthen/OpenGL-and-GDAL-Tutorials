@@ -17,6 +17,7 @@ void framerenderer::render(glm::mat4& view, glm::mat4& projection)
 	Renderer.setUniformInteger("gPositionMap",0);
 	Renderer.setUniformInteger("gColorMap",1);
 	Renderer.setUniformInteger("gNormalMap",2);
+	Renderer.setUniformInteger("gProjectorMap",4);
 	float SCREEN_SIZE[2]={(float)SCREEN_WIDTH,(float)SCREEN_HEIGHT};
 	Renderer.setUniformFloatArray2("gScreenSize",1,SCREEN_SIZE);
 	Renderer.setUniformFloatArray3("EyePos", 1, &cameraPos.x);

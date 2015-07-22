@@ -380,29 +380,29 @@ void render()
 	fr.SetCameraPos(Camera.getPos());
 	glm::mat4 view = Camera.getView();
 	glm::mat4 projection = Camera.getProjection();
+	//glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	glClearColor( 0.f, 0.f, 0.5f, 0.f );
+	
 	fr.render(view, projection);
-	glDisable(GL_BLEND);
-    pr7.render(view,projection);
-	pr.render(view,projection);
-	pr2.render(view,projection);
-	pr3.render(view,projection);
-	pr4.render(view,projection);
-	pr5.render(view,projection);
-	pr6.render(view,projection);
+	
+	//    glEnable(GL_BLEND);
+    //glBlendEquation(GL_FUNC_ADD);
+
+    //glBlendFunc(GL_ONE, GL_ONE);
+
 	
 	
 	GBuffer::BindForWriting();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	glDisable(GL_BLEND);
+	//glClearColor( 0.f, 0.5f, 0.0f, 0.f );
+	glClearColor( 0.f, 0.f, 0.0f, 0.f );
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_FRONT);
-	glClearColor( 0.f, 0.f, 0.0f, 0.f );
+	
 	Terrain.render(view, projection);
 	shap.render(view,projection);
 	shap2.render(view,projection);
@@ -412,11 +412,18 @@ void render()
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE,GL_ONE);
 
-    glBlendFunc(GL_ONE, GL_ONE);
-
-	
-    //glDisable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+    pr7.render(view,projection);
+	pr.render(view,projection);
+	pr2.render(view,projection);
+	pr3.render(view,projection);
+	pr4.render(view,projection);
+	pr5.render(view,projection);
+	pr6.render(view,projection);
+	//glBlendFunc(GL_ONE, GL_ZERO);
+    glDisable(GL_BLEND);
 
 	GBuffer::DefaultBuffer();
 	return;

@@ -2,6 +2,7 @@
 uniform sampler2D gPositionMap; 
 uniform sampler2D gColorMap; 
 uniform sampler2D gNormalMap; 
+uniform sampler2D gProjectorMap;
 
 uniform vec3 dirlight;
 uniform vec3 color;
@@ -21,7 +22,7 @@ vec2 CalcTexCoord()
 {
     return gl_FragCoord.xy / gScreenSize;
 }
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
 void main()
 {
    	vec2 TexCoord = CalcTexCoord();
@@ -49,7 +50,13 @@ void main()
     		SpecularColor = color* specular* Specular;
     	}
     }
-
-
-   	FragColor = vec4(Color* (AmbientColor + DiffuseColor + SpecularColor),.7);
+    vec4 projcolor = texture(gProjectorMap,TexCoord);
+    if(projcolor.x > 0)
+    {
+      FragColor = projcolor;
+    }
+    else
+    {
+   	  FragColor = vec4(Color* (AmbientColor + DiffuseColor + SpecularColor),.7);
+    }
 }
