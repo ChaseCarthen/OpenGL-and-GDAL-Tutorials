@@ -383,7 +383,8 @@ void render()
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	fr.render(view, projection);
-        pr7.render(view,projection);
+	glDisable(GL_BLEND);
+    pr7.render(view,projection);
 	pr.render(view,projection);
 	pr2.render(view,projection);
 	pr3.render(view,projection);
@@ -412,7 +413,7 @@ void render()
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+    glBlendFunc(GL_ONE, GL_ONE);
 
 	
     //glDisable(GL_BLEND);
