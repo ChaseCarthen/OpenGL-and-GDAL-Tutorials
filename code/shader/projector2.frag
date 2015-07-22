@@ -45,8 +45,8 @@ void main()
   }
   else
   {
-    DiffuseOut = vec4(0,0,0,1);
-    //discard;
+    //DiffuseOut = vec4(0,0,0,1);
+    discard;
     //DiffuseOut = texture(gColorMap,TexCoord).xyzw;
   }
 
