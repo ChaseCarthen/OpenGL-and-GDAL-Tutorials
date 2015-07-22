@@ -57,6 +57,8 @@ gluint SomeImageOrData;
 ```
 **With Deferred Shading**
 
+You will need to add another texture to the pipeline that will hold the results of the projectors.
+
 We now have enough information to put our projector somewhere and project imagery into the world assuming that we are using deffered shading, but it would be different with forward (more on this later). I will be assuming that all world positions, diffuse colors, and normal are stored into textures for the lighting phase of deffered shading. Given the texture with world positions and diffuse colors we can project a texture into the world. We will also need to pass some kind of texture to be projected onto the world. Our projector will be considered a light because it technically is and will be rendered screenwise with a quad.
 
 Here is the frag shader that we will be needed to show a texture being projected into the world:
@@ -79,7 +81,8 @@ vec2 CalcTexCoord()
     return gl_FragCoord.xy / gScreenSize;
 }
 
-layout (location = 0) out vec4 DiffuseOut; 
+// Render texture location for your projectors
+layout (location = 4) out vec4 DiffuseOut; 
 
 void main()
 {
@@ -442,21 +445,27 @@ As you can see the process of placing the projector into the correct spot and ma
 Steps for rendering (Deferred Shading):
 
 1. Do Geometry Pass
-2. Do Lighthing Pass
-3. Do Projection
+2. Do Projection Pass into projector render texture.
+3. Do Lighthing Pass
 
-The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap), while blending in such a way that it is still visible. This will require us to use alpha blending. Here is some code that will alpha blending possible, but it will be up to you the follower of this tutorial to find the right alpha values for blending. Play with the alpha values coming out of your shader.
+The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture.
 
 ```c++
+// switch to Multiple render targets
+// Set proper depth buffer
+// clear color to black.
 //geometry pass
 glEnable(GL_BLEND);
+// Projector pass 
 glBlendEquation(GL_FUNC_ADD);
-glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+glBlendFunc(GL_ONE, GL_ONE);
+// render the projectors -- to blend them in case overlap make sure clear color is black
+glDisable(GL_BLEND);
 
+// Switch to default buffer
+glBlendEquation(GL_FUNC_ADD);
+glBlendFunc(GL_ONE, GL_ONE);
 // Do lighting phase
-
-// render the projectors
-
 glDisable(GL_BLEND);
 ```
 
