@@ -65,7 +65,7 @@ Here is the frag shader that we will be needed to show a texture being projected
 ```glsl
 #version 330 
 uniform sampler2D gPositionMap; 
-uniform sampler2D gColorMap; 
+uniform sampler2D gTextureMap; // the texture to be used for holding the projections
 uniform sampler2D gNormalMap; // not used
 
 uniform sampler2D proj_tex; // our texture to be projected
@@ -89,12 +89,12 @@ void main()
   vec2 TexCoord = CalcTexCoord();
 
   vec3 pos = texture(gPositionMap,TexCoord).xyz;
-  vec3 diffuse = texture(gColorMap,TexCoord).xyz;
+  vec3 texmap = texture(gTextureMap,TexCoord).xyz;
   
   // calculate the tex gen matrix and apply it to the world position
   vec4 test = (tex * projection * view * vec4(pos,1.0));
   vec2 uv = test.xy;
-  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1)
+  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && texmap.x)
   {
     // 
     DiffuseOut = vec4(texture(proj_tex,uv.xy).xyz,.8);
@@ -448,21 +448,18 @@ Steps for rendering (Deferred Shading):
 2. Do Projection Pass into projector render texture.
 3. Do Lighthing Pass
 
-The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture.
+The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture (one way is to use discard in the shader or to use gl_blend(discard is easier)).
 
 ```c++
 // switch to Multiple render targets
 // Set proper depth buffer
 // clear color to black.
 //geometry pass
-glEnable(GL_BLEND);
-// Projector pass 
-glBlendEquation(GL_FUNC_ADD);
-glBlendFunc(GL_ONE, GL_ONE);
-// render the projectors -- to blend them in case overlap make sure clear color is black
-glDisable(GL_BLEND);
 
-// Switch to default buffer
+// Projector pass -- use discard or glblend with another framebuffer -- make sure to clear it to black
+// render the projectors -- to blend them in case overlap make sure clear color is black
+
+// Switch to default buffer -- blend the light
 glBlendEquation(GL_FUNC_ADD);
 glBlendFunc(GL_ONE, GL_ONE);
 // Do lighting phase
@@ -487,7 +484,7 @@ Here is one screenshot from running my example code and two verification screens
 
 **Issues**
 
-As you will notice in the screenshots the projector overlaps onto of the shapes which can be undesireable in some cases. The simple fix for this to identify all objects in the same and store their identifies into a texture. With the identity known a simple if statement is needed for telling the projector not to render on a shape identity. 
+As you will notice in the screenshots the projector overlaps onto of the shapes which can be undesireable in some cases. The simple fix for this to identify all objects in the same and store their identifies into a texture. With the identity known a simple if statement is needed for telling the projector not to render on a shape identity.
 
 **Final Note**
 
