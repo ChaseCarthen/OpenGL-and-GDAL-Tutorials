@@ -41,6 +41,13 @@ public:
 		bandnum = band;
 	};
 
+	void setmask(std::string maskname)
+	{
+		maskfile = maskname;
+		cout << maskfile << endl;
+		//exit(0);
+	};
+
 	void SetPosition(glm::vec3 p)
 	{
 		position = p;
@@ -100,8 +107,9 @@ private:
 	glm::vec3 up;
 	glm::vec2 origin;
 	buffer Buffer;
-	GLuint tex;
+	GLuint tex,masktex;
 	string filename;
+	string maskfile;
 	int width, height;
 	double xres, yres;
 	PROJECTOR_TYPE projtype;

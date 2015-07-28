@@ -61,6 +61,14 @@ void projector::setup()
 	{
 		generateTexture(filename, tex, bandnum,projection, x, y, width, height, xres, yres);
 	}
+
+	if(maskfile != "" )
+	{
+		double unused1,unused2,unused5,unused6;
+		int unused3,unused4;
+		generateTexture(maskfile,masktex,1,projection,unused1,unused2,unused3,unused4,unused5,unused6);
+	}
+
 	origin.x = x;
 	origin.y = y;
 
@@ -88,6 +96,12 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 	glActiveTexture(GL_TEXTURE0 + 5);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
+	if(masktex)
+	{
+		glActiveTexture(GL_TEXTURE0 + 6);
+		glBindTexture(GL_TEXTURE_2D,masktex);
+	}
+
 	Renderer.useProgram();
 	Buffer.bindBuffer();
 	if (projtype == IMAGE)
@@ -99,6 +113,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 		Renderer.setUniformInteger("gPositionMap", 0);
 		Renderer.setUniformInteger("gTextureMap", 4);
 		Renderer.setUniformInteger("proj_tex", 5);
+		Renderer.setUniformInteger("mask_tex",6);
 		//Renderer.setUniformInteger("gNormalMap",2);
 		float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
 		Renderer.setUniformFloatArray2("gScreenSize", 1, SCREEN_SIZE);
@@ -111,7 +126,6 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 	}
 	else
 	{
-		//cout << "HERE" << endl;
 		Renderer.enableVertexAttribPointer("Position");
 		Renderer.setGLVertexAttribPointer("Position", 2, GL_FLOAT, GL_FALSE, sizeof(float), 0);
 
@@ -119,6 +133,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 		Renderer.setUniformInteger("gPositionMap", 0);
 		Renderer.setUniformInteger("gTextureMap", 4);
 		Renderer.setUniformInteger("proj_tex", 5);
+		Renderer.setUniformInteger("mask_tex",6);
 		//Renderer.setUniformInteger("gNormalMap",2);
 		float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
 		Renderer.setUniformFloatArray2("gScreenSize", 1, SCREEN_SIZE);

@@ -337,7 +337,7 @@ bool init()
 				pr6.setFile(AssetManager::GetAppPath() + "../../data/satellite/res6.tif");
 				pr6.setup();
 				pr6.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
-
+				pr7.setmask(AssetManager::GetAppPath() + "../../data/tl2p5mask.ipw.tif");
 				pr7.setFile(AssetManager::GetAppPath() + "../../data/em.1000.tif",projector::PROJECTOR_TYPE::DATA);
 				pr7.setup();
 				pr7.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
@@ -397,9 +397,9 @@ void render()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	//glClearColor( 0.f, 0.5f, 0.0f, 0.f );
-	glClearColor( 0.f, 0.f, 0.5f, 0.f );
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    glClearColor( 0.f, 0.f, 0.0f, 0.f );
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_FRONT);
 	
@@ -410,11 +410,11 @@ void render()
 	//glDepthMask(GL_FALSE);
 
     glDisable(GL_DEPTH_TEST);
-    //glEnable(GL_BLEND);
-    //glBlendEquation(GL_FUNC_ADD);
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
     //glBlendFunc(GL_ONE,GL_ONE);
 
-    //glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
     pr7.render(view,projection);
 	pr.render(view,projection);
 	pr2.render(view,projection);
@@ -423,7 +423,7 @@ void render()
 	pr5.render(view,projection);
 	pr6.render(view,projection);
 	//glBlendFunc(GL_ONE, GL_ZERO);
-    //glDisable(GL_BLEND);
+    glDisable(GL_BLEND);
 
 	GBuffer::DefaultBuffer();
 	return;

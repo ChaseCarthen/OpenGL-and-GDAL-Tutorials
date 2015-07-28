@@ -417,6 +417,7 @@ void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,
       }
     }
   }
+  //exit(0);
   CPLFree(pafScanline);
   double xright,ybottom;
   ComputeGeoProperties(poDataset, width, height, xorigin, yorigin, xright, ybottom, xres, yres);
