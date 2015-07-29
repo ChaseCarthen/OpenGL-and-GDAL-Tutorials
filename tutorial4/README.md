@@ -57,9 +57,9 @@ gluint SomeImageOrData;
 ```
 **With Deferred Shading**
 
-You will need to add another texture to the pipeline that will hold the results of the projectors.
+You will need to create a seperate framebuffer for the projectors.
 
-We now have enough information to put our projector somewhere and project imagery into the world assuming that we are using deffered shading, but it would be different with forward (more on this later). I will be assuming that all world positions, diffuse colors, and normal are stored into textures for the lighting phase of deffered shading. Given the texture with world positions and diffuse colors we can project a texture into the world. We will also need to pass some kind of texture to be projected onto the world. Our projector will be considered a light because it technically is and will be rendered screenwise with a quad.
+We now have enough information to put our projector somewhere and project imagery into the world assuming that we are using deffered shading, but it would be different with forward (more on this later). I will be assuming that all world positions, diffuse colors, and normal are stored into textures for the lighting phase of deffered shading. Given the texture with world positions and diffuse colors we can project a texture into the world. We will need to create a framebuffer that accumulates the results into one render target
 
 Here is the frag shader that we will be needed to show a texture being projected into the world:
 ```glsl
@@ -81,8 +81,8 @@ vec2 CalcTexCoord()
     return gl_FragCoord.xy / gScreenSize;
 }
 
-// Render texture location for your projectors
-layout (location = 4) out vec4 DiffuseOut; 
+// We want the render target location to be zero with one framebuffer.
+layout (location = 0) out vec4 TexOut; 
 
 void main()
 {
@@ -94,10 +94,9 @@ void main()
   // calculate the tex gen matrix and apply it to the world position
   vec4 test = (tex * projection * view * vec4(pos,1.0));
   vec2 uv = test.xy;
-  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && texmap.x)
+  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 )
   {
-    // 
-    DiffuseOut = vec4(texture(proj_tex,uv.xy).xyz,.8);
+    TexOut = vec4(texture(proj_tex,uv.xy).xyz,.8);
   }
   else
   {
@@ -308,7 +307,23 @@ With the normalized ranges computed we can now in a shader do the following to r
 colorout = mix(lowcolor,highcolor,normalizedvalue.a); // all you need to do is pass the values into the shader through the texture
 ```
 
+**Part B: Floating Point Dataset or Image Masks**
+I have discussed how it would be possible to load images or floating point datasets. However, what if one wishes to mask a part of the data that is being visualized. The key thing to do here would be to load a mask image that will mask the key vital areas. 
 
+Steps for applying a mask:
+1. Load the mask in the same way for the float data
+2. Pass the mask into the shader
+3. Draw only where the mask has values
+
+```glsl
+// assuming the mask values are stored in the red channel
+float maskval = texture(masksampler,uv).r;
+
+if(maskval > 0 )
+colorout = mix(lowcolor,highcolor,normalizedvalue.a);
+else
+discard; // or colorout = vec4(0,0,0,0); The point here is that we don't want to draw where there is no mask value. 
+```
 **Placing the Imagery into the correct spot.**
 
 Just like the shapes and other gis datasets we need to place everything into the correct spot and at the same time make sure the image is the right size and resolution. The very first thing we need to do is find the width, height, and origin of the a dataset (A small review).
@@ -445,7 +460,7 @@ As you can see the process of placing the projector into the correct spot and ma
 Steps for rendering (Deferred Shading):
 
 1. Do Geometry Pass
-2. Do Projection Pass into projector render texture.
+2. Do Projection Pass into projector framebuffer.
 3. Do Lighthing Pass
 
 The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture (one way is to use discard in the shader or to use gl_blend(discard is easier)).
@@ -454,9 +469,14 @@ The steps above are straight forward and need very little explanation. We want o
 // switch to Multiple render targets
 // Set proper depth buffer
 // clear color to black.
+// use gbuffer fragment buffer 
 //geometry pass
 
-// Projector pass -- use discard or glblend with another framebuffer -- make sure to clear it to black
+// use pbuffer fragment buffer
+glblendequation(GL_FUNC_ADD);
+glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
+
+// Projector pass -- use discard and glblend with another framebuffer -- make sure to clear it to black
 // render the projectors -- to blend them in case overlap make sure clear color is black
 
 // Switch to default buffer -- blend the light
