@@ -7,7 +7,7 @@ projector::projector()
 	                   0, 0, 1.0 / 2.0, 1.0 / 2.0,
 	                   0, 0, 0, 1.0);
 	//cout << "TEXGEN:!!!:!:!"<< Texgen[3][3] << endl;
-	projection = glm::ortho<float>(-1000, 1000, 1000, -1000, 0.1f, 10000.0f); //glm::perspective<float>(
+	projection = glm::ortho<float>(-1000, 1000, 1000, -1000, 0.9f, 10000.0f); //glm::perspective<float>(
 	//    35,         // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 	//   4.0f / 3.0f, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
 	//  0.1f,        // Near clipping plane. Keep as big as possible, or you'll get precision issues.

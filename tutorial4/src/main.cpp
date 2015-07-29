@@ -412,11 +412,11 @@ void render()
 	//glDepthMask(GL_FALSE);
 
     glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
+    //glEnable(GL_BLEND);
 
-    glBlendEquation(GL_FUNC_ADD);
+    //glBlendEquation(GL_FUNC_ADD);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
     GBuffer::DefaultBuffer();
     pbuffer::BindForWriting();
      glClearColor( 0.f, 0.f, 0.0f, 0.0f );
@@ -429,7 +429,7 @@ void render()
 	pr5.render(view,projection);
         pr6.render(view,projection);
 
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND);
 	pbuffer::DefaultBuffer();
 	
 	return;

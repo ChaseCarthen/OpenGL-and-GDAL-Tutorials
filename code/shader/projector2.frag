@@ -44,13 +44,12 @@ void main()
   { 
     float maskval = texture(mask_tex,uv.xy).r;
     if(1.0 - maskval <= 0)
-    TexOut = vec4(mix(vec4(0,0,0,0),vec4(1,1,1,.7),1.0 - texture(proj_tex,uv.xy).r));
+    TexOut = vec4(mix(vec4(0,0,0,.7),vec4(1,1,1,.7),texture(proj_tex,uv.xy).r));
     else
     TexOut = texmap; 
   }
   else
   {
-    //discard;
     TexOut = texmap;
   }
 
