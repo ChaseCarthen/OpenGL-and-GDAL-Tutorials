@@ -15,7 +15,6 @@ class terrain : public renderable
 public:
 	terrain();
 	terrain(string filename);
-	//void SampleTerrain();
 	void setup();
 	void update(float dt);
 	void render(glm::mat4& view, glm::mat4& projection);

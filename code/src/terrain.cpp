@@ -88,10 +88,7 @@ float terrain::SampleTerrain(glm::vec2 point)
 
 	// Calculate the normalized points
 	auto normalized = (point-origin)/(end-origin);
-	//normalized.y *= -1;
-	//cout << origin.y << " " << end.y << endl;
-	//cout << width << " " << height << endl;
-	//cout << "NORMALIZED X: " << normalized.x << " NROMALIZED Y: " << normalized.y << endl;
+
 	if(normalized.x < 1 && normalized.x >= 0 && normalized.y < 1 && normalized.y >= 0)
 	{
 		int locx = (width-1) * normalized.x;
@@ -99,6 +96,7 @@ float terrain::SampleTerrain(glm::vec2 point)
 		//cout << locx << " " << locy << endl;
 		return vecs[locx][locy];
 	}
+	return 0;
 }
 
 float terrain::SampleTerrain2(glm::vec2 point)
@@ -106,15 +104,13 @@ float terrain::SampleTerrain2(glm::vec2 point)
 
 	// Calculate the normalized points
 	auto normalized = (point)/(worldDims);
-	//normalized.y *= -1;
-	//cout << origin.y << " " << end.y << endl;
-	//cout << width << " " << height << endl;
-	//cout << "NORMALIZED X: " << normalized.x << " NROMALIZED Y: " << normalized.y << endl;
+
 	if(normalized.x < 1 && normalized.x >= 0 && normalized.y < 1 && normalized.y >= 0)
 	{
 		int locx = (width-1) * normalized.x;
 		int locy = (height-1) * normalized.y;
-		//cout << locx << " " << locy << endl;
+
 		return vecs[locx][locy];
 	}
+	return 0;
 }

@@ -13,11 +13,7 @@
 #include <OpenGL/GLU.h>
 #else //linux as default
 #include <GL/glew.h>
-//#include <GL/gl.h>
 #include <GL/glu.h>
-//#include <GL/glext.h>
-//#define GL_GLEXT_PROTOTYPES 1
-
 #endif
 
 //#define GL3_PROTOTYPES 1
@@ -109,7 +105,6 @@ camera Camera;
 
 framerenderer fr;
 
-//string fname = "../data/output_srtm.tif"; //1m_DTM.tif";
 terrain Terrain;
 
 GLint VaoId;
@@ -125,9 +120,9 @@ int main(int argc, char** argv)
 	string appPath = argv[0];
 	cout << argv[0] << endl;
 	appPath.erase(appPath.end() - 3, appPath.end());
+
 	// Lets set the application path for this guy
 	AssetManager::SetAppPath(appPath);
-	cout << "HERE @" << endl;
 
 	current = high_resolution_clock::now();
 	high_resolution_clock::time_point past = high_resolution_clock::now();
@@ -154,8 +149,6 @@ int main(int argc, char** argv)
 		//While application is running
 		while ( !quit )
 		{
-			auto t = glGetError();
-			cout << ErrorString(t) << endl;
 			current = high_resolution_clock::now();
 			duration<double> time_span = duration_cast<duration<double>>(current - past);
 			//Handle events on queue
@@ -164,8 +157,7 @@ int main(int argc, char** argv)
 			{
 				continue;
 			}
-			//past = current
-			cout << time_span.count();
+
 			while ( SDL_PollEvent( &e ) != 0 )
 			{
 				HandleEvents(e, time_span.count());
@@ -335,8 +327,7 @@ void render()
 	glClearColor( 0.f, 0.f, 0.5f, 0.f );
 	Terrain.render(view, projection);
 	GBuffer::DefaultBuffer();
-	//glDisable(GL_CULL_FACE);
-	//glDisable(GL_DEPTH_TEST);
+
 	return;
 }
 

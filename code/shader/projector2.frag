@@ -27,9 +27,7 @@ vec2 CalcTexCoord()
     return gl_FragCoord.xy / gScreenSize;
 }
 
-//layout (location = 0) out vec3 WorldPosOut; 
-layout (location = 0) out vec4 TexOut; 
-//layout (location = 2) out vec3 NormalOut;  
+layout (location = 0) out vec4 TexOut;   
 
 void main()
 {
@@ -51,7 +49,6 @@ void main()
   else
   {
     discard;
-    //TexOut = texmap;
   }
 
 }

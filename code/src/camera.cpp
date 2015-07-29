@@ -54,17 +54,11 @@ void camera::orbitX(float dir)
 void camera::rotateX(float dir)
 {
     angleX = dir * angularSpeedX;
-    //angleX = glm::clamp(angleX,-maxAngleX,maxAngleX);
-
-    //direction = glm::rotate(direction, angle2, glm::cross(direction, glm::vec3(0,1,0)));
 }
 
 void camera::rotateY(float dir)
 {
     angleY = dir * angularSpeedY;
-    //angleY = glm::clamp(angleY, -maxAngleY, maxAngleY);
-
-
 }
 void camera::applyRotation()
 {
@@ -76,14 +70,12 @@ void camera::translate(float dir)
 {
     forwardVel = motionSpeed * dir;
     forwardVel = glm::clamp(forwardVel, minForwardVel, maxForwardVel);
-    //motionvector += motionSpeed * dir * direction;
 }
 
 void camera::strafe(float dir)
 {
     sideVel = motionSpeed * dir;
     sideVel = glm::clamp(sideVel, minSideVel, maxSideVel);
-    //motionvector += motionSpeed * dir * glm::cross(up, direction);
 }
 
 void camera::update()
@@ -97,11 +89,8 @@ void camera::update()
     view = glm::lookAt( position, //Eye Position
                         position + direction, //Focus point
                         up); //Positive Y is up
-    //direction = glm::vec3(0,0,1);
+    
     motionvector = glm::vec3(0, 0, 0);
-    //angleX = 0;
-    //angleY = 0;
-    //std::cout << position.x << " " << position.y << " " << position.z << std::endl;
 }
 
 void camera::resetHorizontalSpeed()

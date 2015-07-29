@@ -44,8 +44,6 @@ public:
 	void setmask(std::string maskname)
 	{
 		maskfile = maskname;
-		cout << maskfile << endl;
-		//exit(0);
 	};
 
 	void SetPosition(glm::vec3 p)
@@ -82,18 +80,13 @@ public:
 
 		double XRES = (xright-x) / width;
 		double YRES = (y - ybottom) / height;
-		cout << xres << " " << yres << endl;
-		cout << XRES << " " << YRES << endl;
-		//exit(0);
+
 		SetDimensions((xright-x),(y - ybottom));
 		x = x - mainorigin.x;
 		y = mainorigin.y - y;
 		position.x = x;
 		position.z = y;
 
-
-		cout << "projector position" << x << " " << y;
-		//exit(0);
 	};
 
 private:

@@ -8,6 +8,7 @@ uniform sampler2D mask_tex;
 
 uniform vec3 dirlight;
 uniform vec3 color;
+
 // Intensitys
 uniform float ambient;
 uniform float diffuse;
@@ -38,18 +39,13 @@ void main()
   vec4 texmap = texture(gTextureMap,TexCoord);
   vec4 test = (tex * projection * view * vec4(pos,1.0));
   vec2 uv = test.xy;
+
   if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 )
   {
-    //discard;
-    //float maskval = texture(mask_tex,uv.xy).r;
-    //if(1.0 - maskval >= 0)
     TexOut = vec4(texture(proj_tex,uv.xy).xyz,.7);
-    //else
-    //discard;
   }
   else
   {
-    //TexOut = texmap;
     discard;
   }
 }

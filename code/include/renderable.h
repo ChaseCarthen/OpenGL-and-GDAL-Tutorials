@@ -11,8 +11,6 @@
 class renderable
 {
 public:
-	//renderable()
-	//{};
 
 	// A nice generic interface function for rendereing things
 	virtual void render(glm::mat4& view, glm::mat4& projection) = 0;

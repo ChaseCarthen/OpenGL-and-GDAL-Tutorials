@@ -1,13 +1,14 @@
 #include <framerenderer.h>
 
+// Acquired from ogl dev
 framerenderer::framerenderer()
 {
 
 }
+
 // A nice generic interface function for rendereing things
 void framerenderer::render(glm::mat4& view, glm::mat4& projection)
 {
-	//cout << "RENDER FRAME" << endl;
 	Renderer.useProgram();
 	Buffer.bindBuffer();
 	Renderer.enableVertexAttribPointer("Position");
