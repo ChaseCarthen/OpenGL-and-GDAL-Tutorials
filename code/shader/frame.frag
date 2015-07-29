@@ -12,6 +12,7 @@ uniform float diffuse;
 uniform float specular; 
 uniform float specularPower; // specular power
 
+uniform int hasproj; // has projectors?
 
 // Cameras position in the world
 uniform vec3 EyePos;
@@ -51,7 +52,7 @@ void main()
     	}
     }
     vec4 projcolor = texture(gProjectorMap,TexCoord);
-    if(projcolor.a > 0.0 )
+    if(projcolor.a > 0.0  && hasproj < 0 )
     {
       FragColor = projcolor;//vec4(projcolor.xyz,.7);
     }

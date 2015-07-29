@@ -310,6 +310,7 @@ bool init()
 
 				fr.setup();
 				fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+				fr.setHasProj(-1); // we need to project something
 
 				pr.setFile(AssetManager::GetAppPath() + "../../data/satellite/res.tif");
 				pr.setup();

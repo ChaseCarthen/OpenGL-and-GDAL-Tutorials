@@ -3,7 +3,7 @@
 // Acquired from ogl dev
 framerenderer::framerenderer()
 {
-
+	proj = 1;
 }
 
 // A nice generic interface function for rendereing things
@@ -30,6 +30,7 @@ void framerenderer::render(glm::mat4& view, glm::mat4& projection)
 	glm::vec3 direction(0,-1,0);
 	Renderer.setUniformFloatArray3("color", 1, &color.x);
 	Renderer.setUniformFloatArray3("dirlight",1,&direction.x);
+	Renderer.setUniformInteger("hasproj",proj);
 	Renderer.renderRaw(GL_TRIANGLES,12);
 }
 

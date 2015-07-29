@@ -28,10 +28,14 @@ public:
 	{
 		cameraPos = pos;
 	};
-
+	void setHasProj(int val)
+	{
+		proj = val;
+	};
 private:
 	buffer Buffer;
 	int SCREEN_WIDTH,SCREEN_HEIGHT;
 	glm::vec3 cameraPos;
+	int proj;
 };
 #endif
