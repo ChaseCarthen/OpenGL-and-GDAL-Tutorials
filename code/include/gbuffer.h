@@ -25,7 +25,6 @@ public:
         GBUFFER_TEXTURE_TYPE_DIFFUSE,
         GBUFFER_TEXTURE_TYPE_NORMAL,
         GBUFFER_TEXTURE_TYPE_TEXCOORD,
-        GBUFFER_TEXTURE_TYPE_PROJECTOR,
         GBUFFER_NUM_TEXTURES
     };
 
@@ -42,10 +41,16 @@ public:
     static void SetReadBuffer(GBUFFER_TEXTURE_TYPE TextureType);
 
     static GLuint m_textures[GBUFFER_NUM_TEXTURES];
+
+    static void AttachTexture(GLuint Attachment, GLuint tex)
+    {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, Attachment, GL_TEXTURE_2D, tex, 0);
+    };
+
 private:
 	// For now I am using static variables as an experiment... sorry this is bad code.
 	static GLuint m_fbo;
-    
+        
     static GLuint m_depthTexture;
 };
 #endif

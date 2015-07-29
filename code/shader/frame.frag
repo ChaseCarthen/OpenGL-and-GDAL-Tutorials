@@ -51,9 +51,9 @@ void main()
     	}
     }
     vec4 projcolor = texture(gProjectorMap,TexCoord);
-    if(projcolor.a > 0 )
+    if(projcolor.a > 0.0 )
     {
-      FragColor = vec4(projcolor.xyz,.7);
+      FragColor = projcolor;//vec4(projcolor.xyz,.7);
     }
     else
     {

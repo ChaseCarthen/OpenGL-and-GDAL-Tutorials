@@ -34,7 +34,7 @@
 #include <framerenderer.h>
 #include <shape.h>
 #include <projector.h>
-
+#include <pbuffer.h>
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -310,6 +310,8 @@ bool init()
 
 				//cout << glGetString(GL_VERSION) << endl;
 				cout << "GUFFER SUCCESS: " << GBuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT) << endl;
+				if(!pbuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT))
+				exit(0);
 				
 				fr.setup();
 				fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -411,21 +413,25 @@ void render()
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+
     glBlendEquation(GL_FUNC_ADD);
-    //glBlendFunc(GL_ONE,GL_ONE);
 
     glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-    pr7.render(view,projection);
+    GBuffer::DefaultBuffer();
+    pbuffer::BindForWriting();
+     glClearColor( 0.f, 0.f, 0.0f, 0.0f );
+    glClear(GL_COLOR_BUFFER_BIT);
+       pr7.render(view,projection);
 	pr.render(view,projection);
 	pr2.render(view,projection);
 	pr3.render(view,projection);
 	pr4.render(view,projection);
 	pr5.render(view,projection);
-	pr6.render(view,projection);
-	//glBlendFunc(GL_ONE, GL_ZERO);
-    glDisable(GL_BLEND);
+        pr6.render(view,projection);
 
-	GBuffer::DefaultBuffer();
+    glDisable(GL_BLEND);
+	pbuffer::DefaultBuffer();
+	
 	return;
 }
 

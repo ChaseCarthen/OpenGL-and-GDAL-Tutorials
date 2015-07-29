@@ -27,10 +27,7 @@ vec2 CalcTexCoord()
     return gl_FragCoord.xy / gScreenSize;
 }
 
-//layout (location = 0) out vec3 WorldPosOut; 
-layout (location = 4) out vec4 DiffuseOut;
-
-//layout (location = 2) out vec3 NormalOut;  
+layout (location = 0) out vec4 TexOut;
 
 void main()
 {
@@ -41,19 +38,18 @@ void main()
   vec4 texmap = texture(gTextureMap,TexCoord);
   vec4 test = (tex * projection * view * vec4(pos,1.0));
   vec2 uv = test.xy;
-  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 )
+  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && texmap.a <= 0.0)
   {
     //discard;
     //float maskval = texture(mask_tex,uv.xy).r;
     //if(1.0 - maskval >= 0)
-    DiffuseOut = vec4(texture(proj_tex,uv.xy).xyz,1);
+    TexOut = vec4(texture(proj_tex,uv.xy).xyz,.7);
     //else
     //discard;
   }
   else
   {
-    //DiffuseOut = vec4(0,0,0,1);//texture(gColorMap,TexCoord).xyz;
-    discard;
-    //DiffuseOut = texture(gColorMap,TexCoord).xyza;
+    TexOut = texmap;
+    //discard;
   }
 }
