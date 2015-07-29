@@ -38,7 +38,7 @@ void main()
   vec4 texmap = texture(gTextureMap,TexCoord);
   vec4 test = (tex * projection * view * vec4(pos,1.0));
   vec2 uv = test.xy;
-  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && texmap.a <= 0.0)
+  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 )
   {
     //discard;
     //float maskval = texture(mask_tex,uv.xy).r;
@@ -49,7 +49,7 @@ void main()
   }
   else
   {
-    TexOut = texmap;
-    //discard;
+    //TexOut = texmap;
+    discard;
   }
 }
