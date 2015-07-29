@@ -25,13 +25,13 @@ bool GBuffer::Init(unsigned int WindowWidth, unsigned int WindowHeight)
                  NULL);
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture, 0);
 
-    GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+    GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
     glDrawBuffers(ARRAY_SIZE_IN_ELEMENTS(DrawBuffers), DrawBuffers);
 
     GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
     if (Status != GL_FRAMEBUFFER_COMPLETE) {
-        //printf("FB error, status: 0x%x\n", Status);
+        printf("FB error, status: 0x%x\n", Status);
         return false;
     }
 
@@ -59,7 +59,7 @@ void GBuffer::SetReadBuffer(GBUFFER_TEXTURE_TYPE TextureType)
 void GBuffer::DefaultBuffer()
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    //cout << ARRAY_SIZE_IN_ELEMENTS(m_textures) << endl;
+
     for (unsigned int i = 0 ; i < ARRAY_SIZE_IN_ELEMENTS(m_textures); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, m_textures[GBUFFER_TEXTURE_TYPE_POSITION + i]);

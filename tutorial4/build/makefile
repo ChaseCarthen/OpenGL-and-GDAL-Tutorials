@@ -2,7 +2,7 @@ CODE := ../../code
 CODE_SRC := $(CODE)/src
 SOURCE := ../src/main.cpp $(CODE_SRC)/gishandler.cpp $(CODE_SRC)/buffer.cpp $(CODE_SRC)/renderer.cpp $(CODE_SRC)/shader.cpp \
 $(CODE_SRC)/AssetManager.cpp $(CODE_SRC)/camera.cpp $(CODE_SRC)/gbuffer.cpp $(CODE_SRC)/terrain.cpp \
-$(CODE_SRC)/framerenderer.cpp ../src/shape.cpp ../src/projector.cpp
+$(CODE_SRC)/framerenderer.cpp ../src/shape.cpp ../src/projector.cpp ../src/pbuffer.cpp
 
 
 INCLUDE := -I$(CODE)/include -I../include

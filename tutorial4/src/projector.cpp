@@ -6,17 +6,13 @@ projector::projector()
 	                   0, 1.0 / 2.0, 0, 1.0 / 2.0,
 	                   0, 0, 1.0 / 2.0, 1.0 / 2.0,
 	                   0, 0, 0, 1.0);
-	//cout << "TEXGEN:!!!:!:!"<< Texgen[3][3] << endl;
-	projection = glm::ortho<float>(-1000, 1000, 1000, -1000, 0.1f, 10000.0f); //glm::perspective<float>(
-	//    35,         // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
-	//   4.0f / 3.0f, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
-	//  0.1f,        // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-	//  100000.0f       // Far clipping plane. Keep as little as possible.
-	//);
+
+	projection = glm::ortho<float>(-1000, 1000, 1000, -1000, 0.9f, 10000.0f);
+
 
 	up = glm::vec3(0, 0, -1);
 	direction = glm::vec3(0, -1, 0);
-	//direction = glm::rotate(direction, 180.0f, glm::cross(direction, up));
+
 	position = glm::vec3(110, 0, 110);
 	view = glm::lookAt( position, //Eye Position
 	                    position + direction, //Focus point
@@ -61,6 +57,14 @@ void projector::setup()
 	{
 		generateTexture(filename, tex, bandnum,projection, x, y, width, height, xres, yres);
 	}
+
+	if(maskfile != "" )
+	{
+		double unused1,unused2,unused5,unused6;
+		int unused3,unused4;
+		generateTexture(maskfile,masktex,1,projection,unused1,unused2,unused3,unused4,unused5,unused6);
+	}
+
 	origin.x = x;
 	origin.y = y;
 
@@ -82,11 +86,14 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 	                    position + direction, //Focus point
 	                    up);
 
-	//cout << "TEXGEN:!!!:!:!"<< Texgen[0][0] << endl;
-
-
 	glActiveTexture(GL_TEXTURE0 + 5);
 	glBindTexture(GL_TEXTURE_2D, tex);
+
+	if(masktex)
+	{
+		glActiveTexture(GL_TEXTURE0 + 6);
+		glBindTexture(GL_TEXTURE_2D,masktex);
+	}
 
 	Renderer.useProgram();
 	Buffer.bindBuffer();
@@ -99,7 +106,8 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 		Renderer.setUniformInteger("gPositionMap", 0);
 		Renderer.setUniformInteger("gTextureMap", 4);
 		Renderer.setUniformInteger("proj_tex", 5);
-		//Renderer.setUniformInteger("gNormalMap",2);
+		Renderer.setUniformInteger("mask_tex",6);
+
 		float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
 		Renderer.setUniformFloatArray2("gScreenSize", 1, SCREEN_SIZE);
 		Renderer.setUniformMatrix4x4("projection", projection);
@@ -111,7 +119,6 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 	}
 	else
 	{
-		//cout << "HERE" << endl;
 		Renderer.enableVertexAttribPointer("Position");
 		Renderer.setGLVertexAttribPointer("Position", 2, GL_FLOAT, GL_FALSE, sizeof(float), 0);
 
@@ -119,7 +126,8 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 		Renderer.setUniformInteger("gPositionMap", 0);
 		Renderer.setUniformInteger("gTextureMap", 4);
 		Renderer.setUniformInteger("proj_tex", 5);
-		//Renderer.setUniformInteger("gNormalMap",2);
+		Renderer.setUniformInteger("mask_tex",6);
+
 		float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
 		Renderer.setUniformFloatArray2("gScreenSize", 1, SCREEN_SIZE);
 		Renderer.setUniformMatrix4x4("projection", projection);

@@ -41,6 +41,11 @@ public:
 		bandnum = band;
 	};
 
+	void setmask(std::string maskname)
+	{
+		maskfile = maskname;
+	};
+
 	void SetPosition(glm::vec3 p)
 	{
 		position = p;
@@ -75,18 +80,13 @@ public:
 
 		double XRES = (xright-x) / width;
 		double YRES = (y - ybottom) / height;
-		cout << xres << " " << yres << endl;
-		cout << XRES << " " << YRES << endl;
-		//exit(0);
+
 		SetDimensions((xright-x),(y - ybottom));
 		x = x - mainorigin.x;
 		y = mainorigin.y - y;
 		position.x = x;
 		position.z = y;
 
-
-		cout << "projector position" << x << " " << y;
-		//exit(0);
 	};
 
 private:
@@ -100,8 +100,9 @@ private:
 	glm::vec3 up;
 	glm::vec2 origin;
 	buffer Buffer;
-	GLuint tex;
+	GLuint tex,masktex;
 	string filename;
+	string maskfile;
 	int width, height;
 	double xres, yres;
 	PROJECTOR_TYPE projtype;

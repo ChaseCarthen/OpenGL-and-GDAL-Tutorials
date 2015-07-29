@@ -5,9 +5,6 @@ void transformToUtm(double& x, double& y, OGRSpatialReference* Original)
   OGRSpatialReference    oUTM, *poLatLong;
   OGRCoordinateTransformation *poTransform;
 
- // oUTM.SetProjCS("UTM 11 / WGS84");
-  //oUTM.SetWellKnownGeogCS( "WGS84" );
-  //oUTM.SetUTM( 11,TRUE );
   oUTM.importFromEPSG(26911);
   poLatLong = oUTM.CloneGeogCS();
 
@@ -59,12 +56,6 @@ void ComputeGeoProperties(GDALDataset *poDataset, int width, int height, double&
 
   // Compute corners
   double x2=0;
-  //poTransform2->Transform(1, &x2, &y);
-  //poTransform2->Transform(1, &xright, &ybottom);
-
-  // Transform to utm on both corners
-  //transformToUtm(x, y,&sr2);
-  //transformToUtm(xright, ybottom,&sr2);
 
   // Lets compute the resolution -- Despite the one provided by the geotransform
   double absoluteW = xright - x;
@@ -73,13 +64,7 @@ void ComputeGeoProperties(GDALDataset *poDataset, int width, int height, double&
   // now lets compute the average resolution of the DEM
   xres = absoluteW / (width);
   yres = absoluteH / (height);
-  cout << "XRES: " << xres << "YRES: " << yres<< endl;
-    cout << "XRIGHT" <<xright << " " << ybottom << endl;
-  cout << "x" << x << " " << y << endl;
-  cout << width << endl;
-  cout << height << endl;
-  cout << y << endl;
-  //exit(0);
+
 };
 
 
@@ -109,10 +94,9 @@ bool getRawValuesFromFile(string fname, vector<vector<float>>& vecs, float& min,
   oUTM.SetProjCS("UTM 11 / WGS84");
   oUTM.SetWellKnownGeogCS( "WGS84" );
   oUTM.SetUTM( 11 );
-  //char* tempor;
-  //oUTM.exportToWkt( &poDataset.);//poDataset->GetProjectionRef());
+
   projection = string(poDataset->GetProjectionRef());
-  //free(tempor);
+
   // time to find the width of the data and print it for sanity
   cout << "Data size: " << GDALGetRasterXSize(poDataset) << " " << GDALGetRasterYSize(poDataset) << endl;
 
@@ -135,6 +119,7 @@ bool getRawValuesFromFile(string fname, vector<vector<float>>& vecs, float& min,
           GDALGetDataTypeName(poBand->GetRasterDataType()),
           GDALGetColorInterpretationName(
             poBand->GetColorInterpretation()) );
+
   // Get the min and max
   min = adfMinMax[0] = poBand->GetMinimum( &bGotMin );
   max = adfMinMax[1] = poBand->GetMaximum( &bGotMax );
@@ -156,6 +141,7 @@ bool getRawValuesFromFile(string fname, vector<vector<float>>& vecs, float& min,
 
   XORIGIN = x;
   YORIGIN = y;
+
   // something extra not need for this simple function but you can get the number
   // of bands in the dataset
   int bands = poDataset->GetRasterCount();
@@ -210,10 +196,6 @@ bool getRawValuesFromFile(string fname, vector<vector<float>>& vecs, float& min,
   }
 
   CPLFree(pafScanline);
-
-  //for(auto i : out)
-  //for(auto j : i)
-  //   cout << j << endl;
 
   cout << "Done Loading" << endl;
   vecs = out;
@@ -313,13 +295,11 @@ void generateTexture(string fname, GLuint& tex, int bandnum)
   {
     for (int j = 0; j < 512; j++)
     {
-      //cout << i << j << endl << pafS;
+
       if (pafScanline[i * width + j] != no)
       {
         // set tex val
         texs[i * 512 + j] = (unsigned char)(255 * abs((pafScanline[i * 512 + j] - min) / (max - min)));
-        //if(pafScanline[i*512+j] > 0)
-        //cout << (int)texs[i*512 +j] << " " << pafScanline[i*512+j] << " " << no << " " << fname << " " << min << " " << max << endl;
       }
       else
       {
@@ -355,7 +335,6 @@ void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,
   if (poDataset == NULL)
   {
     cout << "OUCH!" << endl;
-    //exit(0);
     return;
   }
   projection = string(poDataset->GetProjectionRef());
@@ -393,7 +372,7 @@ void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,
 
   pafScanline = (float *) CPLMalloc(sizeof(float) * 512 * 512);
   vector<vector<float>> out = vector<vector<float>>(height, vector<float> (width, 0));
-  //vector<vector<unsigned char>> texs = vector<vector<unsigned char>>(height,vector<unsigned char> (width,0));
+
   unsigned char texs[512 * 512];
   poBand->RasterIO(GF_Read, 0, 0, width, height, pafScanline, 512, 512, GDT_Float32, 0, 0);
   float no = poBand->GetNoDataValue();
@@ -402,13 +381,11 @@ void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,
   {
     for (int j = 0; j < 512; j++)
     {
-      //cout << i << j << endl << pafS;
+
       if (pafScanline[i * width + j] != no)
       {
         // set tex val
         texs[i * 512 + j] = (unsigned char)(255 * abs((pafScanline[i * 512 + j] - min) / (max - min)));
-        //if(pafScanline[i*512+j] > 0)
-        //cout << (int)texs[i*512 +j] << " " << pafScanline[i*512+j] << " " << no << " " << fname << " " << min << " " << max << endl;
       }
       else
       {
@@ -417,6 +394,7 @@ void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,
       }
     }
   }
+
   CPLFree(pafScanline);
   double xright,ybottom;
   ComputeGeoProperties(poDataset, width, height, xorigin, yorigin, xright, ybottom, xres, yres);
@@ -444,7 +422,6 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
   if (poDataset == NULL)
   {
     cout << "OUCH!" << endl;
-    //exit(0);
     return;
   }
   cout << "Data size: " << GDALGetRasterXSize(poDataset) << " " << GDALGetRasterYSize(poDataset) << endl;
@@ -611,8 +588,7 @@ vec3 ComputeNormal(vec3 center, int i, int j, int width, int height, vector<vect
 };
 void createMesh(vector<vector<float>>& input, float xres, float yres, float max, vector<int>& indicies, vector<Vertex>& vertexes)
 {
-  cout << "MAX: " << max;
-  cout << "XRES " << xres << " YRES" << yres << endl;
+
   // Our vertex information along with normals contained inside
   std::vector<Vertex> vectors = vector<Vertex>();
 
@@ -662,7 +638,6 @@ void createMesh(vector<vector<float>>& input, float xres, float yres, float max,
       vectors.push_back(Vertex{ {(i + 1)*xres, LL, j * yres}, b, {(float)(i + 1) / (float)input.size(), (float)j / (float)input[i].size()} } );
       vectors.push_back(Vertex{ {i * xres, UR, (j + 1)*yres}, c, {(float)i / (float)input.size(), (float)(j + 1) / (float)input[i].size()} } );
       vectors.push_back(Vertex{ {(i + 1)*xres, LR, (j + 1)*yres}, d, {(float)(i + 1) / (float)input.size(), (float)(j + 1) / (float)input[i].size()} } );
-      //cout << vectors[vectors.size()-1].normal.z << endl;
 
       indexs.push_back(vectors.size() - 4);
       indexs.push_back(vectors.size() - 1);
