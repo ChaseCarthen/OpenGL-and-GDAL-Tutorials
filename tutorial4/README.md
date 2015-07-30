@@ -463,7 +463,7 @@ Steps for rendering (Deferred Shading):
 2. Do Projection Pass into projector framebuffer.
 3. Do Lighthing Pass
 
-The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture (one way is to use discard in the shader or to use gl_blend(discard is easier)).
+The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture (one way is to use discard in the shader or to use gl_blend(discard is easier).
 
 ```c++
 // switch to Multiple render targets
@@ -486,6 +486,113 @@ glBlendFunc(GL_ONE, GL_ONE);
 glDisable(GL_BLEND);
 ```
 
+We need to step up a framebuffer that will contain our changes with each framebuffer projection.
+First lets setup the framebuffer and attach one render texture to contain the changes.
+Here is some code that contains this setup:
+
+```c++
+GLuint projtex;
+GLuint m_fbo;
+
+glGenFramebuffers(1, &m_fbo);
+glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+
+// Create the gbuffer textures
+glGenTextures(1, projtex);
+glGenTextures(1, &m_depthTexture);
+
+// bind the texture
+glBindTexture(GL_TEXTURE_2D, projtex);
+glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+// Lets store everything into a texture with rgba channels
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WindowWidth, WindowHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i+4, GL_TEXTURE_2D, m_textures[i], 0);
+
+
+// bind a dpeth buffer -- technically not needed 
+glBindTexture(GL_TEXTURE_2D, m_depthTexture);
+glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture, 0);
+
+GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT4 };
+glDrawBuffers(ARRAY_SIZE_IN_ELEMENTS(DrawBuffers), DrawBuffers);
+
+GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+if (Status != GL_FRAMEBUFFER_COMPLETE) {
+     //printf("FB error, status: 0x%x\n", Status);
+     return false;
+}
+
+// restore default FBO
+glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+```
+
+As you can see I am only binding one texture to this framebuffer, which means everything that will be render will go into this one texture. Within this texture we will need to blend all of the results of the projectors into this one framebuffer. 
+
+First we will need to setup up blending where we will blend based on the alpha values of the projectors so that we can control how well two projectors blend:
+```c++
+glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+glEnable(GL_BLEND);
+
+glBlendEquation(GL_FUNC_ADD);
+
+glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+
+// Render projectors
+
+// Can't forgot to disable blending afterwords
+glDisable(GL_BLEND);
+
+//Result default frame buffer  
+glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+// set render texture to your desired texture target    
+glActiveTexture(GL_TEXTURE0 + 4);
+glBindTexture(GL_TEXTURE_2D, projtex);
+```
+
+After the blending is enable now we can render all of the projectors but the key thing we need for these projectors are the positions of the verticies from the geometry pass in deffered shading ( Refer to ogldev for more details). The projectors will be rendered for the full screen or into a quad that is the same size of the screen.
+
+Rendering code for one projector:
+```c++
+// Set the texture we are rendering to one specific target.
+glActiveTexture(GL_TEXTURE0 + 5);
+glBindTexture(GL_TEXTURE_2D, tex);
+
+// if there is a mask tex enable it
+if(masktex)
+{
+   glActiveTexture(GL_TEXTURE0 + 6);
+   glBindTexture(GL_TEXTURE_2D,masktex);
+}
+
+Renderer.useProgram();
+// bind the buffer of our vbos
+Buffer.bindBuffer();
+
+Renderer.enableVertexAttribPointer("Position");
+Renderer.setGLVertexAttribPointer("Position", 2, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+
+// enable three textures
+Renderer.setUniformInteger("gPositionMap", 0);
+Renderer.setUniformInteger("gTextureMap", 4); // the texture map that we have rendered into previously .. we need this for blending
+Renderer.setUniformInteger("proj_tex", 5); // the texture we are placing onto the terrain or some object
+Renderer.setUniformInteger("mask_tex",6); // the texture we are using to mask the projected texture
+
+float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
+Renderer.setUniformFloatArray2("gScreenSize", 1, SCREEN_SIZE); // pass screen size to shaders
+Renderer.setUniformMatrix4x4("projection", projection);
+Renderer.setUniformMatrix4x4("view", view);
+Renderer.setUniformMatrix4x4("tex", Texgen); // pass scaling matrix to shaders
+
+Renderer.renderRaw(GL_TRIANGLES, 12); // Render a quad
+Renderer.disableVertexAttribPointer("Position"); // disable a vao.
+// Don't forgot to disable blending
+glDisable(GL_BLEND);
+```
 **Application Example**
 ----
 To run the example:
