@@ -60,4 +60,5 @@ void main()
     {
    	  FragColor = vec4(Color* (AmbientColor + DiffuseColor + SpecularColor),.7);
     }
+    //FragColor=vec4(1,1,1,1);
 }
