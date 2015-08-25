@@ -127,7 +127,7 @@ int main(int argc, char** argv)
 	appPath.erase(appPath.end() - 3, appPath.end());
 	// Lets set the application path for this guy
 	AssetManager::SetAppPath(appPath);
-	cout << "HERE @" << endl;
+
 
 	current = high_resolution_clock::now();
 	high_resolution_clock::time_point past = high_resolution_clock::now();
@@ -154,8 +154,6 @@ int main(int argc, char** argv)
 		//While application is running
 		while ( !quit )
 		{
-			auto t = glGetError();
-			cout << ErrorString(t) << endl;
 			current = high_resolution_clock::now();
 			duration<double> time_span = duration_cast<duration<double>>(current - past);
 			//Handle events on queue
@@ -165,7 +163,7 @@ int main(int argc, char** argv)
 				continue;
 			}
 			//past = current
-			cout << time_span.count();
+			//cout << time_span.count();
 			while ( SDL_PollEvent( &e ) != 0 )
 			{
 				HandleEvents(e, time_span.count());

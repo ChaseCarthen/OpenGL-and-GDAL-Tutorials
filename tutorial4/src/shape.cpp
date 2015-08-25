@@ -48,7 +48,7 @@ bool shape::load(string filename)
                 && wkbFlatten(poGeometry->getGeometryType()) == wkbPoint )
         {
             OGRPoint *poPoint = (OGRPoint *) poGeometry;
-            //cout << "POINT!!!" << endl;
+            cout << "POINT!!!" << endl;
             double x = poPoint->getX();
             double y = poPoint->getY();
             points.push_back(vector<glm::vec2>());
@@ -78,7 +78,7 @@ bool shape::load(string filename)
 
             OGRLineString* ls = (OGRLineString*)poGeometry->getBoundary();
             points.push_back(vector<glm::vec2>());
-            //cout << "POLYGON" << ls->getNumPoints() << endl;
+            cout << "POLYGON" << ls->getNumPoints() << endl;
             //exit(0);
             for (int i = 0; i < ls->getNumPoints(); i++ )
             {
@@ -163,10 +163,12 @@ bool shape::createMesh(OGRSpatialReference* sr2, glm::vec2 origin, glm::vec2 sca
                 if (j == points[i].size() - 1)
                 {
                     //vertexs.push_back(temp);
-                    temp.position.y -= 40;
-                    temp.position.z += 40;
+                    temp.position.y -= 5;
+                    temp.position.z += 5;
+                    temp.position.y = t.SampleTerrain2(glm::vec2(temp.position.x,temp.position.z));
                     vertexs.push_back(temp);
                     temp.position.y += 40;
+
                     vertexs.push_back(temp);
                     indicies.push_back(vertexs.size() - 3);
                     indicies.push_back(vertexs.size() - 1);
@@ -189,7 +191,7 @@ bool shape::createMesh(OGRSpatialReference* sr2, glm::vec2 origin, glm::vec2 sca
                 y = origin.y - y;
 
                 Vertex temp2 = {{(float)x, (float)t.SampleTerrain(orig), (float)y}, {(float)1, (float)0, (float)0}, {1, 1}};
-                //cout << "Vertex: " << temp2.position.x << " " << temp2.position.y << " " << temp2.position.z << endl;
+                cout << "Vertex: " << temp2.position.x << " " << temp2.position.y << " " << temp2.position.z << endl;
                 //cout << "ORIGIN: " << origin.x << " " << origin.y << " " << temp2.position.z << endl;
                 vertexs.push_back(temp2);
                 temp2.position.y += 40;

@@ -15,13 +15,13 @@ class terrain : public renderable
 public:
 	terrain();
 	terrain(string filename);
-	//void SampleTerrain();
 	void setup();
 	void update(float dt);
 	void render(glm::mat4& view, glm::mat4& projection);
 	void cleanup();
 	void SetFile(string filename);
 	float SampleTerrain(glm::vec2 point);
+	float SampleTerrain2(glm::vec2 point);
 	glm::vec2 GetOrigin()
 	{
 		return origin;
@@ -42,6 +42,8 @@ private:
 	OGRSpatialReference sr;
 	glm::vec2 origin;
 	glm::vec2 end;
+	glm::vec2 worldOrigin;
+	glm::vec2 worldDims;
 	int width,height;
 };
 

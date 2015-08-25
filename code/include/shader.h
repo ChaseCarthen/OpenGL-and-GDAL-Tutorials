@@ -11,8 +11,6 @@
 #include <GL/glext.h>
 #endif
 
-//#include <OpenGL/gl3.h>
-//#include <GL/glut.h>
 #ifndef _SHADER_H_
 #define _SHADER_H_
 // Class for a shader loader

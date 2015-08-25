@@ -119,10 +119,10 @@ void renderer::setTexture(string name,unsigned int texTarget,GLuint number,GLuin
 {
     GLint v;
     glActiveTexture(number - GL_TEXTURE0+GL_TEXTURE0);
-    //glBindTexture(texture);
+
     glBindTexture(GL_TEXTURE_2D,texture);
     getUniform(name,v);
-    //glEnable(GL_TEXTURE_2D);
+
     glUniform1i(v, number - GL_TEXTURE0);
 
 

@@ -11,16 +11,13 @@
 #if defined(__APPLE__) || defined(MACOSX)
 #include <OpenGL/gl3.h>
 #include <OpenGL/GLU.h>
+
 #else //linux as default
 #include <GL/glew.h>
-//#include <GL/gl.h>
 #include <GL/glu.h>
-//#include <GL/glext.h>
-//#define GL_GLEXT_PROTOTYPES 1
 
 #endif
 
-//#define GL3_PROTOTYPES 1
 #include <renderer.h>
 #include <iostream>
 #include <buffer.h>
@@ -34,7 +31,7 @@
 #include <framerenderer.h>
 #include <shape.h>
 #include <projector.h>
-
+#include <pbuffer.h>
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -110,7 +107,13 @@ camera Camera;
 
 framerenderer fr;
 projector pr;
-//string fname = "../data/output_srtm.tif"; //1m_DTM.tif";
+projector pr2;
+projector pr3;
+projector pr4;
+projector pr5;
+projector pr6;
+projector pr7;
+
 terrain Terrain;
 
 // A memento to the shapfiles..
@@ -126,6 +129,8 @@ bool quit;
 
 int main(int argc, char** argv)
 {
+	GLuint test;
+
 	renderer Renderer = renderer();
 
 	string appPath = argv[0];
@@ -147,14 +152,23 @@ int main(int argc, char** argv)
 	else
 	{
 		cout << "INITIALIZED" << endl;
-		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek.tif");
+
+		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek2.tif");
 		Terrain.setup();
 		shap.load(AssetManager::GetAppPath() + "../../data/streamDCEW2/stream2.shp");
-		shap.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
+		shap.createMesh(Terrain.GetProjection(), Terrain.GetOrigin(), glm::vec2(1, 1), Terrain);
 		shap2.load(AssetManager::GetAppPath() + "../../data/boundDCEW/boundDCEW.shp");
-		shap2.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
+		shap2.createMesh(Terrain.GetProjection(), Terrain.GetOrigin(), glm::vec2(1, 1), Terrain);
 		shap3.load(AssetManager::GetAppPath() + "../../data/sitesDCEW2012/DCEWsites2013.shp");
-		shap3.createMesh(Terrain.GetProjection(),Terrain.GetOrigin(),glm::vec2(1,1),Terrain);
+		shap3.createMesh(Terrain.GetProjection(), Terrain.GetOrigin(), glm::vec2(1, 1), Terrain);
+
+		pr.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		pr2.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		pr3.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		pr4.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		pr5.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		pr6.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		pr7.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
 		//Main loop flag
 		quit = false;
 
@@ -167,18 +181,16 @@ int main(int argc, char** argv)
 		//While application is running
 		while ( !quit )
 		{
-			//auto t = glGetError();
-			//cout << ErrorString(t) << endl;
+
 			current = high_resolution_clock::now();
 			duration<double> time_span = duration_cast<duration<double>>(current - past);
+			
 			//Handle events on queue
-
 			if (time_span.count() <= 1.0 / 30.0)
 			{
 				continue;
 			}
-			//past = current
-			//cout << time_span.count();
+
 			while ( SDL_PollEvent( &e ) != 0 )
 			{
 				HandleEvents(e, time_span.count());
@@ -239,7 +251,7 @@ bool init()
 		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
 
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Tutorial 4", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 		if ( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -268,19 +280,20 @@ bool init()
 				t = glGetError();
 				cout << ErrorString(t) << endl;
 
-				#if !defined(__APPLE__) && !defined(MACOSX)
+#if !defined(__APPLE__) && !defined(MACOSX)
 				cout << glewGetString(GLEW_VERSION) << endl;
 				glewExperimental = GL_TRUE;
 
 				auto status = glewInit();
+
 				//Check for error
 				if (status != GLEW_OK)
 				{
-					//std::cerr << "GLEW Error: " << glewGetErrorString(status) << "\n";
+					std::cerr << "GLEW Error: " << glewGetErrorString(status) << "\n";
 					success = false;
 				}
-				#endif
-				
+#endif
+
 				t = glGetError();
 				cout << ErrorString(t) << endl;
 				//Initialize OpenGL
@@ -292,10 +305,40 @@ bool init()
 
 				//cout << glGetString(GL_VERSION) << endl;
 				cout << "GUFFER SUCCESS: " << GBuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT) << endl;
+				if (!pbuffer::Init(SCREEN_WIDTH, SCREEN_HEIGHT))
+					exit(0);
+
 				fr.setup();
-				pr.setup();
 				fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
-				pr.setScreenDims(SCREEN_WIDTH,SCREEN_HEIGHT);
+				fr.setHasProj(-1); // we need to project something
+
+				pr.setFile(AssetManager::GetAppPath() + "../../data/satellite/res.tif");
+				pr.setup();
+				pr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+				pr2.setFile(AssetManager::GetAppPath() + "../../data/satellite/res2.tif");
+				pr2.setup();
+				pr2.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+				pr3.setFile(AssetManager::GetAppPath() + "../../data/satellite/res3.tif");
+				pr3.setup();
+				pr3.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+				pr4.setFile(AssetManager::GetAppPath() + "../../data/satellite/res4.tif");
+				pr4.setup();
+				pr4.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+				pr5.setFile(AssetManager::GetAppPath() + "../../data/satellite/res5.tif");
+				pr5.setup();
+				pr5.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+				pr6.setFile(AssetManager::GetAppPath() + "../../data/satellite/res6.tif");
+				pr6.setup();
+				pr6.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+				pr7.setmask(AssetManager::GetAppPath() + "../../data/tl2p5mask.ipw.tif");
+				pr7.setFile(AssetManager::GetAppPath() + "../../data/em.1000.tif", projector::PROJECTOR_TYPE::DATA);
+				pr7.setup();
+				pr7.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
 			}
 		}
 	}
@@ -310,6 +353,7 @@ bool initGL()
 {
 	GLenum error = GL_NO_ERROR;
 	bool success = true;
+
 	//Initialize clear color
 	glClearColor( 0.f, 0.f, 1.f, 1.f );
 
@@ -335,25 +379,45 @@ void render()
 	fr.SetCameraPos(Camera.getPos());
 	glm::mat4 view = Camera.getView();
 	glm::mat4 projection = Camera.getProjection();
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	glClearColor( 0.f, 0.f, 0.5f, 0.f );
-	//fr.render(view, projection);
-	pr.render(view,projection);
-	GBuffer::BindForWriting();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	fr.render(view, projection);
+
+	GBuffer::BindForWriting();
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_FRONT);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.0f, 0.f );
+
 	Terrain.render(view, projection);
-	shap.render(view,projection);
-	shap2.render(view,projection);
-	shap3.render(view,projection);
-	
+	shap.render(view, projection);
+	shap2.render(view, projection);
+	shap3.render(view, projection);
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+
+	glBlendEquation(GL_FUNC_ADD);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 	GBuffer::DefaultBuffer();
+	pbuffer::BindForWriting();
+	glClearColor( 0.f, 0.f, 0.0f, 0.0f );
+	glClear(GL_COLOR_BUFFER_BIT);
+	pr7.render(view, projection);
+	pr.render(view, projection);
+	pr2.render(view, projection);
+	pr3.render(view, projection);
+	pr4.render(view, projection);
+	pr5.render(view, projection);
+	pr6.render(view, projection);
+
+	glDisable(GL_BLEND);
+	pbuffer::DefaultBuffer();
+
 	return;
 }
 
@@ -393,8 +457,6 @@ void HandleEvents(SDL_Event e, float dt)
 		{
 			Camera.rotateX(-1 * dt);
 		}
-
-		//Camera.applyRotation();
 
 		// Move left
 		if (e.key.keysym.sym == SDLK_a)

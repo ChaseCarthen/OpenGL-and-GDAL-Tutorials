@@ -7,9 +7,7 @@
 #include <OpenGL/gl3.h>
 #else //linux as default
 #include <GL/glew.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-//#include <GL/glext.h>
+
 #endif
 
 //#define GLM_FORCE_RADIANS
@@ -24,12 +22,8 @@
 #include <gdal.h>
 #include <gdal_priv.h>
 #include <gdalwarper.h>
-//#include <cpl_conv.h>
 #include <ogrsf_frmts.h>
-//#include <gdal_priv.h>
-//#include <gdal_alg.h>
-//#include <gdal_alg_priv.h>
-//#include <cpl_conv.h>
+
 
 
 #ifndef _GISHANDLER_H_
@@ -49,6 +43,11 @@ void bilinearintertop(vector<vector<float>>& input, int width, int height);
 
 void  generateTexture(string fname, GLuint& tex, int bandnum);
 
+void  generateTexture(string fname, GLuint& tex, int bandnum, string& projection,double& xorigin, double& yorigin, int& width, int& height, double& xres, double& yres);
+
 void createMesh(vector<vector<float>>& input,float xres,float yres,float max, vector<int>& indicies, vector<Vertex>& vertexes);
+
+void generateImageTexture(string fname, GLuint& tex, string& projection,double& xorigin, double& yorigin, int& width, int& height, double& xres, double& yres);
+
 
 #endif

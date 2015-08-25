@@ -4,9 +4,7 @@ using namespace std;
 #include <OpenGL/gl3.h>
 #else //linux as default
 #include <GL/glew.h>
-//#include <GL/gl.h>
-//#include <GL/glext.h>
-//#define GL_GLEXT_PROTOTYPES 1
+
 #endif
 #include <stdlib.h>
 #ifndef _GBUFFER_H_
@@ -41,10 +39,16 @@ public:
     static void SetReadBuffer(GBUFFER_TEXTURE_TYPE TextureType);
 
     static GLuint m_textures[GBUFFER_NUM_TEXTURES];
+
+    static void AttachTexture(GLuint Attachment, GLuint tex)
+    {
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, Attachment, GL_TEXTURE_2D, tex, 0);
+    };
+
 private:
 	// For now I am using static variables as an experiment... sorry this is bad code.
 	static GLuint m_fbo;
-    
+        
     static GLuint m_depthTexture;
 };
 #endif
