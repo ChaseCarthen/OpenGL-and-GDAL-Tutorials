@@ -28,29 +28,30 @@ void plane::buildPlane(int x, int y, int width, int height)
 			verts.push_back(0);
 			verts.push_back(y+j+1);
 
-			inds.push_back(verts.size()-4);
-			inds.push_back(verts.size()-2);
-			inds.push_back(verts.size()-1);
+			inds.push_back(verts.size()/3-4);
+			inds.push_back(verts.size()/3-2);
+			inds.push_back(verts.size()/3-1);
 
-			inds.push_back(verts.size()-4);
-			inds.push_back(verts.size()-1);
-			inds.push_back(verts.size()-3);
+			inds.push_back(verts.size()/3-4);
+			inds.push_back(verts.size()/3-1);
+			inds.push_back(verts.size()/3-3);
 		}
 	}
 	Buffer.generateBuffer(GL_ARRAY_BUFFER);
 	Buffer.bindBuffer();
-	Buffer.allocateBufferData(sizeof(int)*verts.size(),&verts[0],GL_STATIC_DRAW);
+	Buffer.allocateBufferData(sizeof(float)*verts.size(),&verts[0],GL_STATIC_DRAW);
 
 	Buffer2.generateBuffer(GL_ELEMENT_ARRAY_BUFFER);
 	Buffer2.bindBuffer();
 	Buffer2.allocateBufferData(sizeof(int)*inds.size(),&inds[0],GL_STATIC_DRAW);
+	setup();
 }
 
 void plane::setup()
 {
 	Renderer.init();
-	Renderer.addShader(GL_VERTEX_SHADER, AssetManager::GetAppPath()  + "../../code/shader/simple.vert");
-	Renderer.addShader(GL_FRAGMENT_SHADER, AssetManager::GetAppPath() + "../../code/shader/simple.frag");
+	Renderer.addShader(GL_VERTEX_SHADER, AssetManager::GetAppPath()  + "../../code/shader/primative.vert");
+	Renderer.addShader(GL_FRAGMENT_SHADER, AssetManager::GetAppPath() + "../../code/shader/primative.frag");
 	cout << Renderer.compile() << endl;
 	cout << Renderer.link() << endl;
 }

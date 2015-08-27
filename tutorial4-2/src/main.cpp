@@ -31,7 +31,7 @@
 #include <framerenderer.h>
 
 #include <projector.h>
-
+#include <plane.h>
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -113,7 +113,7 @@ projector pr4;
 projector pr5;
 projector pr6;
 projector pr7;
-
+plane Plane;
 terrain Terrain;
 
 
@@ -161,6 +161,7 @@ int main(int argc, char** argv)
 		pr5.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
 		pr6.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
 		pr7.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		Plane.buildPlane(0,0,1000,1000);
 		//Main loop flag
 		quit = false;
 
@@ -373,8 +374,8 @@ void render()
     glClearColor( 0.f, 0.f, 0.0f, 0.f );
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	fr.render(view, projection);
-
+	//fr.render(view, projection);
+    Plane.render(view,projection);
 	GBuffer::BindForWriting();
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -384,15 +385,15 @@ void render()
 	glClearColor( 0.f, 0.f, 0.0f, 0.f );
 
 	Terrain.render(view, projection);
-
+    
 	glDisable(GL_DEPTH_TEST);
-	pr7.render(view, projection);
-	pr.render(view, projection);
-	pr2.render(view, projection);
-	pr3.render(view, projection);
-	pr4.render(view, projection);
-	pr5.render(view, projection);
-	pr6.render(view, projection);
+	//pr7.render(view, projection);
+	//pr.render(view, projection);
+	//pr2.render(view, projection);
+	//pr3.render(view, projection);
+	//pr4.render(view, projection);
+	//pr5.render(view, projection);
+	//pr6.render(view, projection);
 	//glEnable(GL_BLEND);
 
 	//glBlendEquation(GL_FUNC_ADD);
