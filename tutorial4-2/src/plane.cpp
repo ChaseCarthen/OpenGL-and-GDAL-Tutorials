@@ -8,9 +8,9 @@ plane::plane()
 void plane::buildPlane(int x, int y, int width, int height)
 {
 
-	for(int i = 0; i < width-1; i += 2)
+	for(int i = 0; i < width-1; i += 1)
 	{
-		for(int j =0; j < height-1; j += 2)
+		for(int j =0; j < height-1; j += 1)
 		{
 			verts.push_back(x+i);
 			verts.push_back(0);
@@ -29,12 +29,12 @@ void plane::buildPlane(int x, int y, int width, int height)
 			verts.push_back(y+j+1);
 
 			inds.push_back(verts.size()/3-4);
-			inds.push_back(verts.size()/3-2);
 			inds.push_back(verts.size()/3-1);
+			inds.push_back(verts.size()/3-2);
 
 			inds.push_back(verts.size()/3-4);
-			inds.push_back(verts.size()/3-1);
 			inds.push_back(verts.size()/3-3);
+			inds.push_back(verts.size()/3-1);
 		}
 	}
 	Buffer.generateBuffer(GL_ARRAY_BUFFER);
@@ -66,8 +66,10 @@ void plane::render(glm::mat4& view, glm::mat4& projection)
 	Renderer.useProgram();
 	Buffer.bindBuffer();
 	Buffer2.bindBuffer();
+	glm::mat4 mvp = projection * view;
+	Renderer.setUniformMatrix4x4("mvp", mvp);
 	Renderer.enableVertexAttribPointer("poses");
-	Renderer.setGLVertexAttribPointer("poses", 3, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+	Renderer.setGLVertexAttribPointer("poses", 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), 0);
 
 	Renderer.render(inds.size());
 
