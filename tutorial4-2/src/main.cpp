@@ -107,14 +107,9 @@ camera Camera;
 
 framerenderer fr;
 projector pr;
-projector pr2;
-projector pr3;
-projector pr4;
-projector pr5;
-projector pr6;
-projector pr7;
+
 plane Plane;
-terrain Terrain;
+
 
 
 
@@ -150,18 +145,8 @@ int main(int argc, char** argv)
 	{
 		cout << "INITIALIZED" << endl;
 
-		Terrain.SetFile(AssetManager::GetAppPath() + "../../data/drycreek2.tif");
-		Terrain.setup();
-
-
-		pr.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
-		pr2.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
-		pr3.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
-		pr4.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
-		pr5.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
-		pr6.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
-		pr7.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
-		Plane.buildPlane(0,0,1000,1000);
+		
+		Plane.buildPlane(-500,-500,1000,1000);
 		//Main loop flag
 		quit = false;
 
@@ -304,33 +289,11 @@ bool init()
 				fr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
 				//fr.setHasProj(-1); // we need to project something
 
-				pr.setFile(AssetManager::GetAppPath() + "../../data/satellite/res.tif");
+				pr.setFile(AssetManager::GetAppPath() + "../smiley-face.png");
 				pr.setup();
 				pr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-				pr2.setFile(AssetManager::GetAppPath() + "../../data/satellite/res2.tif");
-				pr2.setup();
-				pr2.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-				pr3.setFile(AssetManager::GetAppPath() + "../../data/satellite/res3.tif");
-				pr3.setup();
-				pr3.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-				pr4.setFile(AssetManager::GetAppPath() + "../../data/satellite/res4.tif");
-				pr4.setup();
-				pr4.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-				pr5.setFile(AssetManager::GetAppPath() + "../../data/satellite/res5.tif");
-				pr5.setup();
-				pr5.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-				pr6.setFile(AssetManager::GetAppPath() + "../../data/satellite/res6.tif");
-				pr6.setup();
-				pr6.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
-				pr7.setmask(AssetManager::GetAppPath() + "../../data/tl2p5mask.ipw.tif");
-				pr7.setFile(AssetManager::GetAppPath() + "../../data/em.1000.tif", projector::PROJECTOR_TYPE::DATA);
-				pr7.setup();
-				pr7.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+				pr.SetDimensions(500,500);
+				pr.SetPosition(50,50);
 			}
 		}
 	}
@@ -374,8 +337,8 @@ void render()
     glClearColor( 0.f, 0.f, 0.0f, 0.f );
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	//fr.render(view, projection);
-    Plane.render(view,projection);
+	fr.render(view, projection);
+    
 	GBuffer::BindForWriting();
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -384,34 +347,14 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.0f, 0.f );
 
-	Terrain.render(view, projection);
+	
+
+    Plane.render(view,projection);
     
 	glDisable(GL_DEPTH_TEST);
-	//pr7.render(view, projection);
-	//pr.render(view, projection);
-	//pr2.render(view, projection);
-	//pr3.render(view, projection);
-	//pr4.render(view, projection);
-	//pr5.render(view, projection);
-	//pr6.render(view, projection);
-	//glEnable(GL_BLEND);
+	pr.render(view,projection);
 
-	//glBlendEquation(GL_FUNC_ADD);
-
-	//glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 	GBuffer::DefaultBuffer();
-
-	//glClearColor( 0.f, 0.f, 0.0f, 0.0f );
-	//glClear(GL_COLOR_BUFFER_BIT);
-	//pr7.render(view, projection);
-	//pr.render(view, projection);
-	//pr2.render(view, projection);
-	//pr3.render(view, projection);
-	//pr4.render(view, projection);
-	//pr5.render(view, projection);
-	//pr6.render(view, projection);
-
-	//glDisable(GL_BLEND);
 
 	return;
 }

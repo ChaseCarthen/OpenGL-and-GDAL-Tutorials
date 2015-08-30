@@ -8,7 +8,7 @@ camera::camera()
     angularSpeedY = 70;
     direction = glm::vec3(0, 0, 1);
     motionvector = glm::vec3(0, 0, 0);
-    position = glm::vec3(0, 0, -10);
+    position = glm::vec3(0, 10, -10);
     angleX = 0;
     angleY = 0;
     up = glm::vec3(0, 1, 0);
@@ -85,7 +85,7 @@ void camera::update()
     motionvector += sideVel * glm::cross(up, direction);
     motionvector += flightVel * up;
     position += motionvector;
-
+    std::cout << position.x << " " << position.y << " " << position.z << std::endl;
     view = glm::lookAt( position, //Eye Position
                         position + direction, //Focus point
                         up); //Positive Y is up

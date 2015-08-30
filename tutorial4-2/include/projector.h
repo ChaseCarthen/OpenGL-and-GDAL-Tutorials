@@ -55,6 +55,14 @@ public:
 	{
 		projection = glm::ortho<float>(-width / 2.0f, width / 2.0f, height / 2.0f, -height / 2.0f, 0.1f, 10000.0f);
 	};
+
+	void SetPosition(float x, float y)
+	{
+		position.x = x;
+		position.z = y;
+		position.y = 100;
+	};
+
 	void setToMainCoordinateSystem(OGRSpatialReference* main, glm::vec2 mainorigin)
 	{
 
