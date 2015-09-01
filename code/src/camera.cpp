@@ -85,7 +85,7 @@ void camera::update()
     motionvector += sideVel * glm::cross(up, direction);
     motionvector += flightVel * up;
     position += motionvector;
-    std::cout << position.x << " " << position.y << " " << position.z << std::endl;
+    //std::cout << position.x << " " << position.y << " " << position.z << std::endl;
     view = glm::lookAt( position, //Eye Position
                         position + direction, //Focus point
                         up); //Positive Y is up

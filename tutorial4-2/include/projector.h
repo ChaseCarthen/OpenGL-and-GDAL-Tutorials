@@ -109,6 +109,7 @@ public:
 		{
 			alpha = 1;
 		}
+		cout << alpha << endl;
 	};
 
 	void decTranslucency(float alph)
@@ -118,6 +119,7 @@ public:
 		{
 			alpha = 0;
 		}
+		cout << alpha << endl;
 	};
 
 private:

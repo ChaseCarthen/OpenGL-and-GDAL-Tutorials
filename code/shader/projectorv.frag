@@ -35,18 +35,18 @@ void main()
   vec2 TexCoord = CalcTexCoord();
 
   // Just a pass through for now
-  vec3 pos = texture(gPositionMap,TexCoord).xyz;
+  vec4 pos = texture(gPositionMap,TexCoord);
   vec4 texmap = texture(gTextureMap,TexCoord);
-  vec4 test = (tex * projection * view * vec4(pos,1.0));
+  vec4 test = (tex * projection * view * vec4(pos));
   vec2 uv = test.xy;
   
-  if( test.w >= 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && texmap.a > 0 )
+  if( test.w >= 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && pos.a > 0.0 && alpha > 0.1)
   {
-    TexOut = vec4(texture(proj_tex,uv.xy).xyz,alpha);
+    TexOut = vec4(texture(proj_tex,uv.xy).xyz,texture(proj_tex,uv.xy).a*alpha);
   }
   else
   {
-    //TexOut = vec4(texture(gTextureMap,CalcTexCoord()).xyz,0.0);
+    //TexOut = //vec4(texture(gTextureMap,CalcTexCoord()));
     discard;
   }
 }
