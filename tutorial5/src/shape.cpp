@@ -191,7 +191,7 @@ bool shape::createMesh(OGRSpatialReference* sr2, glm::vec2 origin, glm::vec2 sca
                 y = origin.y - y;
 
                 Vertex temp2 = {{(float)x, (float)t.SampleTerrain(orig), (float)y}, {(float)1, (float)0, (float)0}, {1, 1}};
-                cout << "Vertex: " << temp2.position.x << " " << temp2.position.y << " " << temp2.position.z << endl;
+                //cout << "Vertex: " << temp2.position.x << " " << temp2.position.y << " " << temp2.position.z << endl;
                 //cout << "ORIGIN: " << origin.x << " " << origin.y << " " << temp2.position.z << endl;
                 vertexs.push_back(temp2);
                 temp2.position.y += 40;

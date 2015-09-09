@@ -17,6 +17,7 @@ projector::projector()
 	view = glm::lookAt( position, //Eye Position
 	                    position + direction, //Focus point
 	                    up); //Positive Y is up
+	alpha = 1;
 
 }
 
@@ -27,11 +28,11 @@ void projector::setup()
 	Renderer.addShader(GL_VERTEX_SHADER, AssetManager::GetAppPath()  + "../../code/shader/projector.vert");
 	if (projtype == IMAGE)
 	{
-		Renderer.addShader(GL_FRAGMENT_SHADER, AssetManager::GetAppPath() + "../../code/shader/projector.frag");
+		Renderer.addShader(GL_FRAGMENT_SHADER, AssetManager::GetAppPath() + "../../code/shader/projectorv.frag");
 	}
 	else
 	{
-		Renderer.addShader(GL_FRAGMENT_SHADER, AssetManager::GetAppPath() + "../../code/shader/projector2.frag");
+		Renderer.addShader(GL_FRAGMENT_SHADER, AssetManager::GetAppPath() + "../../code/shader/projectorv2.frag");
 	}
 
 	cout << Renderer.compile() << endl;
@@ -96,6 +97,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 	}
 
 	Renderer.useProgram();
+	Renderer.setUniformFloat("alpha",alpha);
 	Buffer.bindBuffer();
 	if (projtype == IMAGE)
 	{
@@ -104,7 +106,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 
 		// enable three textures
 		Renderer.setUniformInteger("gPositionMap", 0);
-		Renderer.setUniformInteger("gTextureMap", 4);
+		Renderer.setUniformInteger("gTextureMap", 1);
 		Renderer.setUniformInteger("proj_tex", 5);
 		Renderer.setUniformInteger("mask_tex",6);
 
@@ -124,7 +126,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 
 		// enable three textures
 		Renderer.setUniformInteger("gPositionMap", 0);
-		Renderer.setUniformInteger("gTextureMap", 4);
+		Renderer.setUniformInteger("gTextureMap", 1);
 		Renderer.setUniformInteger("proj_tex", 5);
 		Renderer.setUniformInteger("mask_tex",6);
 

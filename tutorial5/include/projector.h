@@ -55,6 +55,14 @@ public:
 	{
 		projection = glm::ortho<float>(-width / 2.0f, width / 2.0f, height / 2.0f, -height / 2.0f, 0.1f, 10000.0f);
 	};
+
+	void SetPosition(float x, float y)
+	{
+		position.x = x;
+		position.z = y;
+		position.y = 100;
+	};
+
 	void setToMainCoordinateSystem(OGRSpatialReference* main, glm::vec2 mainorigin)
 	{
 
@@ -89,6 +97,31 @@ public:
 
 	};
 
+	void setTranslucency(float Alpha)
+	{
+		alpha = Alpha;
+	};
+
+	void incTranslucency(float alph)
+	{
+		alpha += alph;
+		if(alpha >= 1)
+		{
+			alpha = 1;
+		}
+		cout << alpha << endl;
+	};
+
+	void decTranslucency(float alph)
+	{
+		alpha -= alph;
+		if(alpha <= 0)
+		{
+			alpha = 0;
+		}
+		cout << alpha << endl;
+	};
+
 private:
 	OGRSpatialReference sr;
 	int SCREEN_WIDTH, SCREEN_HEIGHT;
@@ -105,6 +138,9 @@ private:
 	string maskfile;
 	int width, height;
 	double xres, yres;
+
+	float alpha;
+
 	PROJECTOR_TYPE projtype;
 	int bandnum;
 };
