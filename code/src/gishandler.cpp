@@ -409,7 +409,7 @@ void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, texs);
-  
+  glGenerateMipmap(GL_TEXTURE_2D);
   GDALClose( (GDALDatasetH) poDataset);
 
   return;
@@ -490,7 +490,7 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &packeddata[0]);
     //exit(0);
   }
-
+  glGenerateMipmap(GL_TEXTURE_2D);
   // Clean up some allocated data
   delete []packeddata;
 

@@ -408,7 +408,8 @@ void render()
 
 	glBlendEquation(GL_FUNC_ADD);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	//glClearColor( 0.f, 0.f, 0.0f, 0.0f );
