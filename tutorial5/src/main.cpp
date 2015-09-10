@@ -31,12 +31,14 @@
 #include <framerenderer.h>
 #include <shape.h>
 #include <projector.h>
+#include <freetype2/ft2build.h>
+#include FT_FREETYPE_H
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 using namespace std;
 using namespace chrono;
-
+int currentprojector=0;
 
 float Vertices[9] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0};
 
@@ -112,7 +114,7 @@ projector pr4;
 projector pr5;
 projector pr6;
 projector pr7;
-
+vector<projector> projectors = vector<projector>();
 terrain Terrain;
 
 // A memento to the shapfiles..
@@ -168,6 +170,13 @@ int main(int argc, char** argv)
 		pr5.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
 		pr6.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
 		pr7.setToMainCoordinateSystem(Terrain.GetProjection(), Terrain.GetOrigin());
+		projectors.push_back(pr);
+		projectors.push_back(pr2);
+		projectors.push_back(pr3);
+		projectors.push_back(pr4);
+		projectors.push_back(pr5);
+		projectors.push_back(pr6);
+		projectors.push_back(pr7);
 		//Main loop flag
 		quit = false;
 
@@ -403,13 +412,17 @@ void render()
 
 	//glClearColor( 0.f, 0.f, 0.0f, 0.0f );
 	//glClear(GL_COLOR_BUFFER_BIT);
-	pr7.render(view, projection);
+	for(int i = 0; i < projectors.size(); i++)
+	{
+		projectors[i].render(view, projection);
+	}
+	/*pr7.render(view, projection);
 	pr.render(view, projection);
 	pr2.render(view, projection);
 	pr3.render(view, projection);
 	pr4.render(view, projection);
 	pr5.render(view, projection);
-	pr6.render(view, projection);
+	pr6.render(view, projection);*/
 
 	glDisable(GL_BLEND);
 	GBuffer::DefaultBuffer();
@@ -500,6 +513,43 @@ void HandleEvents(SDL_Event e, float dt)
 		if (e.key.keysym.sym == SDLK_f)
 		{
 			Camera.flight(-1 * dt);
+		}
+		if(e.key.keysym.sym == SDLK_1)
+		{
+			currentprojector = 1;
+		}
+		if(e.key.keysym.sym == SDLK_2)
+		{
+			currentprojector = 2;
+		}
+		if(e.key.keysym.sym == SDLK_3)
+		{
+			currentprojector = 3;
+		}
+		if(e.key.keysym.sym == SDLK_4)
+		{
+			currentprojector = 4;
+		}
+		if(e.key.keysym.sym == SDLK_5)
+		{
+			currentprojector = 5;
+		}
+		if(e.key.keysym.sym == SDLK_6)
+		{
+			currentprojector = 6;
+		}
+		if(e.key.keysym.sym == SDLK_7)
+		{
+			currentprojector = 7;
+		}
+		cout << currentprojector << endl;
+		if(e.key.keysym.sym == SDLK_UP)
+		{
+			projectors[currentprojector-1].incTranslucency(0.05);
+		}
+		if(e.key.keysym.sym == SDLK_DOWN)
+		{
+			projectors[currentprojector-1].decTranslucency(0.05);
 		}
 	}
 	else if (e.type == SDL_KEYUP)

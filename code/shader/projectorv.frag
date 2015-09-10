@@ -42,11 +42,11 @@ void main()
   
   if( test.w >= 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && pos.a > 0.0 && alpha > 0.1)
   {
-    TexOut = vec4(texture(proj_tex,uv.xy).xyz,texture(proj_tex,uv.xy).a*alpha);
+    TexOut = vec4(texture(proj_tex,uv.xy).xyz,alpha);
   }
   else
   {
-    //TexOut = //vec4(texture(gTextureMap,CalcTexCoord()));
+    //TexOut = vec4(texture(gTextureMap,CalcTexCoord()));
     discard;
   }
 }

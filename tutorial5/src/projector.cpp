@@ -17,7 +17,7 @@ projector::projector()
 	view = glm::lookAt( position, //Eye Position
 	                    position + direction, //Focus point
 	                    up); //Positive Y is up
-	alpha = 1;
+	alpha = .5;
 
 }
 
