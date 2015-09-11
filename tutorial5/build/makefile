@@ -5,7 +5,7 @@ $(CODE_SRC)/AssetManager.cpp $(CODE_SRC)/camera.cpp $(CODE_SRC)/gbuffer.cpp $(CO
 $(CODE_SRC)/framerenderer.cpp ../src/shape.cpp ../src/projector.cpp ../src/pbuffer.cpp
 
 
-INCLUDE := -I$(CODE)/include -I../include -I/usr/include/freetype2
+INCLUDE := -I$(CODE)/include -I../include 
 LIBS := -lgdal -lSDL2
 FLAGS := -g -std=c++11 
 

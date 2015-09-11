@@ -31,8 +31,6 @@
 #include <framerenderer.h>
 #include <shape.h>
 #include <projector.h>
-#include <freetype2/ft2build.h>
-#include FT_FREETYPE_H
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
