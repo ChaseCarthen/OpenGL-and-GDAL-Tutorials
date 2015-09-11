@@ -357,7 +357,14 @@ void render()
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	fr.render(view, projection);
-    
+	
+    glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	pr.render(view,projection);
+	pr2.render(view,projection);
+	pr3.render(view,projection);
+	glDisable(GL_BLEND);
+
 	GBuffer::BindForWriting();
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -371,15 +378,7 @@ void render()
     Plane.render(view,projection);
     
 	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-        //glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
-	//glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-	//glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-	pr.render(view,projection);
-	pr2.render(view,projection);
-	pr3.render(view,projection);
-	glDisable(GL_BLEND);
+
 	GBuffer::DefaultBuffer();
 
 	return;

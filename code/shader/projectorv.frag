@@ -28,7 +28,7 @@ vec2 CalcTexCoord()
     return gl_FragCoord.xy / gScreenSize;
 }
 
-layout (location = 1) out vec4 TexOut;
+layout (location = 0) out vec4 TexOut;
 
 void main()
 {
@@ -42,7 +42,8 @@ void main()
   
   if( test.w >= 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 && pos.a > 0.0 && alpha > 0.01)
   {
-    TexOut = vec4(texture(proj_tex,uv.xy).xyz,alpha);
+    vec4 temp = texture(proj_tex,uv.xy);
+    TexOut = vec4(temp.xyz,alpha*temp.a);
   }
   else
   {

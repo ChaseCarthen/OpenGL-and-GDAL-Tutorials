@@ -389,11 +389,22 @@ void render()
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	fr.render(view, projection);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	for(int i = 0; i < projectors.size(); i++)
+	{
+		projectors[i].render(view, projection);
+	}
+	
+	glDisable(GL_BLEND);
 
 	GBuffer::BindForWriting();
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+    
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor( 0.f, 0.f, 0.0f, 0.f );
@@ -404,29 +415,8 @@ void render()
 	shap3.render(view, projection);
 
 	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
 
-	glBlendEquation(GL_FUNC_ADD);
 
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-	//glClearColor( 0.f, 0.f, 0.0f, 0.0f );
-	//glClear(GL_COLOR_BUFFER_BIT);
-	for(int i = 0; i < projectors.size(); i++)
-	{
-		projectors[i].render(view, projection);
-	}
-	/*pr7.render(view, projection);
-	pr.render(view, projection);
-	pr2.render(view, projection);
-	pr3.render(view, projection);
-	pr4.render(view, projection);
-	pr5.render(view, projection);
-	pr6.render(view, projection);*/
-
-	glDisable(GL_BLEND);
 	GBuffer::DefaultBuffer();
 
 	return;

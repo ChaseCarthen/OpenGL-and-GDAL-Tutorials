@@ -29,7 +29,7 @@ vec2 CalcTexCoord()
     return gl_FragCoord.xy / gScreenSize;
 }
 
-layout (location = 1) out vec4 TexOut;   
+layout (location = 0) out vec4 TexOut;   
 
 void main()
 {
