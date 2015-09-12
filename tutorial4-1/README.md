@@ -11,6 +11,7 @@ In this tutorial we will cover how to create a projector that will project image
 
 **What is a projector?**
 -----
+A projector is very much like a movie projector in the fact that it projects an image or movie onto a surface. The only big difference is that the projector we are making is not made of physical components. A projector in OpenGL requires a view matrix to place it somewhere in the world along with its view direction and a projection matrix that determines the type of matrix for the clipping plane. Of course with a projector an image is needed to be projected onto the terrain which will be discussed later in this tutorial. 
 
 **Different Types of Projection**
 
@@ -24,7 +25,7 @@ Both of these projections can be used for a projector and being used to splat im
 
 **Projecting onto Geometry**
 
-Some text.
+Now that projections have been made clear lets go over how images are projected onto the terrain. I will be referencing from the OpenGL tutorial that I have placed in the Required Readings section. This will require some math to be covered for projecting an image onto geometry. One key that I would like to note is that the math required displaying geometry onto the screen is relatively the same as projecting onto the terrain. Now to go over some math.
 
 **Some Math to make a projector work.**
 
