@@ -1,3 +1,5 @@
+![equation](http://yuml.me/diagram/scruffy/class/edit/%2F%2F Cool Class Diagram, [Customer|-forname:string;surname:string|doShiz()]<>-orders*>[Order], [Order]++-0..*>[LineItem], [Order]-[note:Aggregate root{bg:wheat}])
+
 #Tutorial 4-1 - Projecting onto Geometry
 **Introduction**
 ----
