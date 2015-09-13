@@ -1,5 +1,3 @@
-![equation](http://yuml.me/diagram/scruffy/class/edit/%2F%2F Cool Class Diagram, [Customer|-forname:string;surname:string|doShiz()]<>-orders*>[Order], [Order]++-0..*>[LineItem], [Order]-[note:Aggregate root{bg:wheat}])
-
 #Tutorial 4-1 - Projecting onto Geometry
 **Introduction**
 ----
@@ -7,13 +5,13 @@ In this tutorial we will cover how to create a projector that will project image
 
 **Required & Supplemental Readings**
 
-1. NVIDIA PDF
-2. A tutorial similiar to this one in Direct x
+1. https://developer.nvidia.com/system/files/akamai/gamedev/docs/projective_texture_mapping.pdf
+2. http://www.rastertek.com/dx11tut43.html
 
 **Libraries Required**
 
-1. glm
-2. gdal or some other image library.
+1. glm : http://glm.g-truc.net/0.9.7/index.html
+2. gdal : http://www.gdal.org/
 
 **What is a projector?**
 -----
@@ -47,14 +45,25 @@ In order for the projector to place something onto the terrain, we first need to
 Here is some code that constructs the view and projection matrix
 ```c++
 // The view matrix
+glm::vec3 position = glm::vec3(110, 0, 110);
+glm::mat4 view = glm::lookAt( position, //Eye Position
+	                    position + direction, //Focus point
+	                    up); //Positive Y is up
 
 // The projection matrix
-
+glm::mat4 projection = glm::ortho<float>(
+-1000, // left of projection
+1000, // right of projection
+1000, // top of projection
+-1000, // bottom of projection
+0.9f, // z Near
+10000.0f // z Far
+);
 ```
 
 Now that we have our projection and view matrix constructed we can check if the geometry is within the projector's frustrum. This step is important for insuring that the projector only casts a texture in the correct spot. In order to do this we need to project our projector's coordinate space onto the geometry. The following formula will achieve this:
 
-Some Math
+
 
 Explain the formula and uv mapping for textures.. (if needed)
 
