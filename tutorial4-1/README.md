@@ -61,11 +61,11 @@ glm::mat4 projection = glm::ortho<float>(
 );
 ```
 
-Now that we have our projection and view matrix constructed we can check if the geometry is within the projector's frustrum. This step is important for insuring that the projector only casts a texture in the correct spot. In order to do this we need to project our projector's coordinate space onto the geometry. The following formula will achieve this:
+Now that we have our projection and view matrix constructed we can check if the geometry is within the projector's frustrum. This step is important for insuring that the projector only casts a texture in the correct spot. In order to do this we need to project our projector's coordinate space onto the geometry. The following formula from the Nvidia paper will achieve this:
+![Projective Texture Mapping equation](equation.png)
 
-
-
-Explain the formula and uv mapping for textures.. (if needed)
+This matrix formulated by this calculation will transform a geometry's points into the texture's space. The V<sub>p</sub> is the view matrix and P<sub>p</sub> is the projection matrix constructed for the projector. The first matrix inside in the equation is a scaling matrix and the last matrix is the model matrix used to bring the geometry into world space. By using the transform matrix formulated by these equations we get uv coordinates that are projected onto the geometry. Here is what the generated texture coordinates: 
+![Projection Texture Mapping UVs](uvs.png)
 
 Show the shader and cpu code.
 
