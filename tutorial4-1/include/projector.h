@@ -97,6 +97,31 @@ public:
 
 	};
 
+	void setTranslucency(float Alpha)
+	{
+		alpha = Alpha;
+	};
+
+	void incTranslucency(float alph)
+	{
+		alpha += alph;
+		if(alpha >= 1)
+		{
+			alpha = 1;
+		}
+		cout << alpha << endl;
+	};
+
+	void decTranslucency(float alph)
+	{
+		alpha -= alph;
+		if(alpha <= 0)
+		{
+			alpha = 0;
+		}
+		cout << alpha << endl;
+	};
+
 private:
 	OGRSpatialReference sr;
 	int SCREEN_WIDTH, SCREEN_HEIGHT;
@@ -113,6 +138,9 @@ private:
 	string maskfile;
 	int width, height;
 	double xres, yres;
+
+	float alpha;
+
 	PROJECTOR_TYPE projtype;
 	int bandnum;
 };

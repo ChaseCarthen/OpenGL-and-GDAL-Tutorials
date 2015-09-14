@@ -17,6 +17,7 @@ projector::projector()
 	view = glm::lookAt( position, //Eye Position
 	                    position + direction, //Focus point
 	                    up); //Positive Y is up
+	alpha = .5;
 
 }
 
@@ -96,6 +97,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 	}
 
 	Renderer.useProgram();
+	Renderer.setUniformFloat("alpha",alpha);
 	Buffer.bindBuffer();
 	if (projtype == IMAGE)
 	{
@@ -104,7 +106,7 @@ void projector::render(glm::mat4& view2, glm::mat4& projection2)
 
 		// enable three textures
 		Renderer.setUniformInteger("gPositionMap", 0);
-		Renderer.setUniformInteger("gTextureMap", 4);
+		Renderer.setUniformInteger("gTextureMap", 1);
 		Renderer.setUniformInteger("proj_tex", 5);
 		Renderer.setUniformInteger("mask_tex",6);
 

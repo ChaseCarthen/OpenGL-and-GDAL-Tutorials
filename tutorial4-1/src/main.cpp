@@ -293,7 +293,7 @@ bool init()
 				pr.setup();
 				pr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
 				pr.SetDimensions(500,500);
-				pr.SetPosition(50,50);
+				pr.SetPosition(0,0);
 			}
 		}
 	}
@@ -338,7 +338,7 @@ void render()
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	fr.render(view, projection);
-    
+    pr.render(view,projection);
 	GBuffer::BindForWriting();
 	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
@@ -352,7 +352,7 @@ void render()
     Plane.render(view,projection);
     
 	glDisable(GL_DEPTH_TEST);
-	pr.render(view,projection);
+	
 
 	GBuffer::DefaultBuffer();
 
