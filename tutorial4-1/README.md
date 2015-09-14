@@ -152,13 +152,14 @@ The above shader code will go point by point and produce an image projected onto
 
 1. Place the projector
 2. Compute world positions 
-3. Compute scaled positions into projected texture space.
-4. Determine if the texture needs to be drawed
+3. Draw Lights
+4. Compute scaled positions into projected texture space.
+4. Determine if the texture needs to be drawn
 5. Draw depending on 4.
 
 **Some Extra Comments On Rendering**
 
-This can be done in forward rendering, but you will need to the projector calculations per object and put it inside every shader. You will no longer need to create a frame renderer, but have your calculations on the inside of each object's shaders.
+This can be done in forward rendering, but you will need to the projector calculations per object and put it inside every shader. You will no longer need to create a frame renderer, but have your calculations on the inside of each object's shaders. *A projector must be rendered after lighting.*
 
 ** The Projector Class **
 ---
@@ -331,6 +332,58 @@ I created a projector that uses the smiley-face.png and projects onto a plane th
 	pr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
 	pr.SetDimensions(500,500);
 	pr.SetPosition(0,0);
+```
+
+One key to note in this example is that I render my projector after all lightning.
+Here is the rendering order for the example as provided by the example:
+```c++
+//fr == frame render the class that renders all of my results of deferred shading to the default frame buffer
+
+// Set frame render camera position 
+fr.SetCameraPos(Camera.getPos());
+
+// get the current view and projection matrixes
+glm::mat4 view = Camera.getView();
+glm::mat4 projection = Camera.getProjection();
+
+// set the gl clear color
+glClearColor( 0.f, 0.f, 0.0f, 0.f );
+
+// clear the color and depth buffer
+glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+// lighting pass
+// render to default frame buffer (the screen) with all deferred rendering results
+fr.render(view, projection);
+// end lighting pass
+
+// render projector to screen
+pr.render(view,projection);
+
+// bind the deferred shading buffer
+GBuffer::BindForWriting();
+
+// turn on the depth mask for writing
+glDepthMask(GL_TRUE);
+
+// set depth test
+glEnable(GL_DEPTH_TEST);
+
+// testing for less the depth -- I want to hide back faces
+glDepthFunc(GL_LESS);
+
+// clear the deferred shading buffer of its depth and color
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+// my measly geomtry pass
+// render the plane
+Plane.render(view,projection);
+// end geomtry pass   
+
+//glDisable(GL_DEPTH_TEST);
+	
+// set to default frame buffer aka the screen
+GBuffer::DefaultBuffer();
 ```
 
 This example can be used as a starting point.
