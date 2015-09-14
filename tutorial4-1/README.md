@@ -69,6 +69,8 @@ glm::mat4 projection = glm::ortho<float>(
 );
 ```
 
+I use glm::lookat to set the view matrix and I set the matrix to look straight down in the world. I used glm::ortho to create a orthographic projection. One key thing that I have learned about glm::ortho that it is best to specify the dimensions of the projection as glm::ortho(-x,x,y,-y,zNear,zFar) in order to get the projection to appear in the correct place with the right image dimensions.
+
 Now that we have our projection and view matrix constructed we can check if the geometry is within the projector's frustrum. This step is important for insuring that the projector only casts a texture in the correct spot. In order to do this we need to project our projector's coordinate space onto the geometry. The following formula from the Nvidia paper will achieve this:
 
 ![Projective Texture Mapping equation](equation.png)
@@ -158,6 +160,159 @@ The above shader code will go point by point and produce an image projected onto
 
 This can be done in forward rendering, but you will need to the projector calculations per object and put it inside every shader. You will no longer need to create a frame renderer, but have your calculations on the inside of each object's shaders.
 
+** The Projector Class **
+---
+The projector class will require the view, projection, and scaling matrix. It  will have to be robusted enough to place the projector into different places. Here is example of the class I created to keep track of the projector:
+```c++
+#ifndef _PROJECTOR_H_
+#define _PROJECTOR_H_
+class projector : renderable
+{
+public:
+
+	enum PROJECTOR_TYPE
+	{
+		IMAGE,
+		DATA
+	};
+	
+	// consructor
+	projector();
+	void setup();
+	void update(float dt);
+	void render(glm::mat4& view, glm::mat4& projection);
+	
+	// a function for setting the screen dimension
+	void setScreenDims(int width, int height)
+	{
+		SCREEN_WIDTH = width;
+		SCREEN_HEIGHT = height;
+	};
+       
+        // the projector type will be discussed later along with band number
+	void setFile(std::string fname,PROJECTOR_TYPE type = IMAGE,int band=1)
+	{
+		filename = fname;
+		projtype = type;
+		bandnum = band;
+	};
+       
+        // this will be used later
+	void setmask(std::string maskname)
+	{
+		maskfile = maskname;
+	};
+
+	void SetPosition(glm::vec3 p)
+	{
+		position = p;
+	};
+       
+        // Setting the dimensions for the projector frustrum
+	void SetDimensions(float width, float height)
+	{
+		projection = glm::ortho<float>(-width / 2.0f, width / 2.0f, height / 2.0f, -height / 2.0f, 0.1f, 10000.0f);
+	};
+
+	void SetPosition(float x, float y)
+	{
+		position.x = x;
+		position.z = y;
+		position.y = 100;
+	};
+
+private:
+	// A screen width and height
+	int SCREEN_WIDTH, SCREEN_HEIGHT;
+	
+	// view,projection, and scaling matrix
+	glm::mat4 view;
+	glm::mat4 projection;
+	glm::mat4 Texgen;
+	
+	// these are necessary for the view matrix
+	glm::vec3 direction;
+	glm::vec3 position;
+	glm::vec3 up;
+	glm::vec2 origin;
+	
+	// something to hold our screen rect -- I created the buffer class
+	buffer Buffer;
+	
+	// Something to hold our projector texture 
+	GLuint tex,masktex; // we will discuss the mask tex later
+	string filename; // a filename from wheich we load our texture
+	
+	//the width and height the projector texture
+	int width, height;
+	
+	// the resolution per pixel -- this will be used later
+	double xres, yres;
+	
+	// used for different types of projectors
+	PROJECTOR_TYPE projtype;
+};
+#endif
+```
+One key function to note is SetDimensions where the projector's image is set to the proper size by setting glm:ortho as follows glm::ortho(-width/2,width/2,height/2,-height/2,zNear,zFar).  The projector's position is set based on the SetPosition function. *The projector is designed to be centered over it's position where the frustrum's center is the projector's position*. 
+
+Here is the rendering function required for the projector to work (with some details omitted for later tutorials):
+```c++
+// view2 and projector2 are the view and projection matrixes for the main camera
+void projector::render(glm::mat4& view2, glm::mat4& projection2)
+{
+	// update the projectors view matrix
+	view = glm::lookAt( position, //Eye Position
+	                    position + direction, //Focus point
+	                    up);
+	
+	// set the projectors texture active 
+	glActiveTexture(GL_TEXTURE0 + 5); // I have mine mapped ot 5 position -- due to other tutorials
+	glBindTexture(GL_TEXTURE_2D, tex);
+	
+	// for later tutorials
+	if(masktex)
+	{
+		glActiveTexture(GL_TEXTURE0 + 6);
+		glBindTexture(GL_TEXTURE_2D,masktex);
+	}
+
+	// glenable
+	Renderer.useProgram();
+	Buffer.bindBuffer(); // glbindbuffer
+	
+	// getuniformattriblocation
+	Renderer.enableVertexAttribPointer("Position");
+	// set the data at the attirb location
+	Renderer.setGLVertexAttribPointer("Position", 2, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+
+	// enable three textures for defered rendering
+	Renderer.setUniformInteger("gPositionMap", 0);
+	Renderer.setUniformInteger("gTextureMap", 4);
+	Renderer.setUniformInteger("proj_tex", 5); // projectors texture
+	Renderer.setUniformInteger("mask_tex",6); // for later tutorials
+
+	// set the screen size
+	float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
+	
+	Renderer.setUniformFloatArray2("gScreenSize", 1, SCREEN_SIZE);
+	
+	// set the matrixs -- gluniform functions
+	Renderer.setUniformMatrix4x4("projection", projection);
+	Renderer.setUniformMatrix4x4("view", view);
+	Renderer.setUniformMatrix4x4("tex", Texgen); // scaling matrix we discussed earlier
+
+	// render our projector
+	Renderer.renderRaw(GL_TRIANGLES, 12); // gldrawelements
+	
+	// disable attributes
+	Renderer.disableVertexAttribPointer("Position");
+}
+
+```
+
+With these short code segments you should be able to render a projector or alternatively you can use the code I have provided as a starting point.
+
 **Example Application**
 ----
 
@@ -165,3 +320,4 @@ This can be done in forward rendering, but you will need to the projector calcul
 
 **Concluding Notes and Next Tutorial**
 -----
+In the next tutorial, I will introduce how to create multiple projectors and blend them together all at the same time. 
