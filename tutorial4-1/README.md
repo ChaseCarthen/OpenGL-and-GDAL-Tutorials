@@ -254,7 +254,7 @@ private:
 };
 #endif
 ```
-One key function to note is SetDimensions where the projector's image is set to the proper size by setting glm:ortho as follows glm::ortho(-width/2,width/2,height/2,-height/2,zNear,zFar).  The projector's position is set based on the SetPosition function. *The projector is designed to be centered over it's position where the frustrum's center is the projector's position*. 
+One key function to note is SetDimensions where the projector's image is set to the proper size by setting glm:ortho as follows glm::ortho(-width/2,width/2,height/2,-height/2,zNear,zFar).  The projector's position is set based on the SetPosition function. *The projector is designed to be placed based at the upper left corner of the frustrum and is the projector's position*. 
 
 Here is the rendering function required for the projector to work (with some details omitted for later tutorials):
 ```c++
@@ -315,8 +315,25 @@ With these short code segments you should be able to render a projector or alter
 
 **Example Application**
 ----
+The code that comes with the tutorial will produce the following output:
 
+![screenshot.png](screenshot.png)
 
+I created a projector that uses the smiley-face.png and projects onto a plane that is of width and height 1000 centered at the origin. The projector is set to project with a width and height of 500 and is placed at the origin.
+
+```c++
+	// plane initialization code
+	Plane.buildPlane(-500,-500,1000,1000);
+	
+	// projector initialization code
+	pr.setFile(AssetManager::GetAppPath() + "../smiley-face.png");
+	pr.setup();
+	pr.setScreenDims(SCREEN_WIDTH, SCREEN_HEIGHT);
+	pr.SetDimensions(500,500);
+	pr.SetPosition(0,0);
+```
+
+This example can be used as a starting point.
 
 **Concluding Notes and Next Tutorial**
 -----
