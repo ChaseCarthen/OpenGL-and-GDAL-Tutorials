@@ -3,6 +3,9 @@
 ----
 In this tutorial we will cover how to create a projector that will project images onto any geometry rendered in OpenGL. This tutorial will essentially be creating projector similar to a movie projector. This projector will be later used to splat satellite imagery onto a terrain or DEM. Our goal is to project a flat image onto the terrain.
 
+**A Small Note**
+I have created this code with in mind that the reader has implemented deferred shading. If the idea behind deferred shading is relatively foreign, then I suggested looking at ogldev's tutorial for deferred shading: .
+
 **Required & Supplemental Readings**
 
 1. https://developer.nvidia.com/system/files/akamai/gamedev/docs/projective_texture_mapping.pdf
@@ -12,6 +15,10 @@ In this tutorial we will cover how to create a projector that will project image
 
 1. glm : http://glm.g-truc.net/0.9.7/index.html
 2. gdal : http://www.gdal.org/
+
+** Loading an Image **
+----
+Before even considering making a projector, a texture must be built for the purpose of viewing that texture. I have included some code in this tutorial that will load an image for you and even build the opengl texture for you using GDAL. As long as you use a format supported by GDAL it will build a texture for the purposes of using it in your projector. Or you can find your favorite texture loading tutorial with Google.
 
 **What is a projector?**
 -----
@@ -138,7 +145,9 @@ void main()
 
 The above shader code will go point by point and produce an image projected onto the geometry. This code will work provided that you are using deferred shading and precompute the world positions into a texture. This will happen after the lighting phase in deferred shading.
 
+
 **Steps for Rendering the Projector (OpenGL view)**
+
 1. Place the projector
 2. Compute world positions 
 3. Compute scaled positions into projected texture space.
@@ -147,6 +156,7 @@ The above shader code will go point by point and produce an image projected onto
 
 **Some Extra Comments On Rendering**
 
+This can be done in forward rendering, but you will need to the projector calculations per object and put it inside every shader. You will no longer need to create a frame renderer, but have your calculations on the inside of each object's shaders.
 
 **Example Application**
 ----
