@@ -2,7 +2,7 @@
 
 **Introduction**
 -----
-In this tutorial, I will be talking how to create to use projective mapping to place images onto the terrain we produced in tutorial 2. For this tutorial we will be using drycreek2.tif which has been modified to make projecting onto the surface of this terrain easier by bringing it into a projection that does not require any estimation techniques.
+In this tutorial, I will be talking how to create to use projective mapping to place images onto the terrain we produced in tutorial 2. For this tutorial we will be using drycreek2.tif which has been modified to make projecting onto the surface of this terrain easier by bringing it into a projection that does not require any estimation techniques. There is no new projection code code in this tutorial. The only thing new is that you will be learning how to place a projector into the correct space and how to make it the correct size to be projected onto the terrain.
 
 Drycreek2.tif was created with and can be found in the data folder in this collection of tutorials:
 ```bash
@@ -238,7 +238,7 @@ Steps for applying a mask:
 float maskval = texture(masksampler,uv).r;
 
 if(maskval > 0 )
-colorout = mix(lowcolor,highcolor,normalizedvalue.a);
+colorout = vec4(mix(lowcolor,highcolor,normalizedvalue.a),alpha); // alpha is the opacity value from tutorial 4-2
 else
 discard; // or colorout = vec4(0,0,0,0); The point here is that we don't want to draw where there is no mask value. 
 ```
@@ -316,13 +316,14 @@ As you can see the perspective projection on the left that has a pyramid shape w
 
 	void SetDimensions(float width, float height)
 	{
+		// set the projectors projection... the projection window
 		projection = glm::ortho<float>(-width / 2.0f, width / 2.0f, height / 2.0f, -height / 2.0f, 0.1f, 10000.0f);
 	};
 	
 	void setToMainCoordinateSystem(OGRSpatialReference* main, glm::vec2 mainorigin)
 	{
 
-		// translate to main coordinate system
+		// translate to main coordinate system 
 		OGRCoordinateTransformation* transform;
 		if (main != NULL)
 		{
@@ -350,7 +351,7 @@ As you can see the perspective projection on the left that has a pyramid shape w
 		x = x - mainorigin.x;
 		y = mainorigin.y - y;
 		
-		// the projectors y is at 3000 or remotely above the terrain so that the frustrum will go through the terrain
+		// set the projectors position
 		position.x = x;
 		position.z = y;
 
@@ -358,7 +359,8 @@ As you can see the perspective projection on the left that has a pyramid shape w
 		cout << "projector position" << x << " " << y;
 		//exit(0);
 	};
-	
+
+// set the projector	
 void projector::render(glm::mat4& view2, glm::mat4& projection2)
 {
 	// remains the same as above
@@ -375,34 +377,15 @@ As you can see the process of placing the projector into the correct spot and ma
 
 **How to visualize everything correctly.**
 
-Steps for rendering (Deferred Shading):
+Steps for rendering (Deferred Shading -- Some review):
 
 1. Do Geometry Pass
-2. Do Projection Pass into projector framebuffer.
-3. Do Lighthing Pass
+2. Do Lighthing Pass
+3. Start Blending
+4. Draw Projectors
+5. End Blending
 
-The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture (one way is to use discard in the shader or to use gl_blend(discard is easier)).
-
-```c++
-// switch to Multiple render targets
-// Set proper depth buffer
-// clear color to black.
-// use gbuffer fragment buffer 
-//geometry pass
-
-// use pbuffer fragment buffer
-glblendequation(GL_FUNC_ADD);
-glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
-
-// Projector pass -- use discard and glblend with another framebuffer -- make sure to clear it to black
-// render the projectors -- to blend them in case overlap make sure clear color is black
-
-// Switch to default buffer -- blend the light
-glBlendEquation(GL_FUNC_ADD);
-glBlendFunc(GL_ONE, GL_ONE);
-// Do lighting phase
-glDisable(GL_BLEND);
-```
+There is nothing magically here for visualizing just use the code for multiple projectors and you should see everything in the correct spot.
 
 **Application Example**
 ----
