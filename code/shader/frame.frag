@@ -54,10 +54,12 @@ void main()
     vec4 projcolor = texture(gProjectorMap,TexCoord);
     if(projcolor.a > 0.0  && hasproj < 0 )
     {
+      //FragColor=vec4(0,1,0,1);
       FragColor = projcolor;//vec4(projcolor.xyz,.7);
     }
     else
     {
    	  FragColor = vec4(Color* (AmbientColor + DiffuseColor + SpecularColor),.7);
     }
+    
 }

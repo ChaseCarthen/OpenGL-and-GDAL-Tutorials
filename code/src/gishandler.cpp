@@ -316,6 +316,7 @@ void generateTexture(string fname, GLuint& tex, int bandnum)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, texs);
+  
   GDALClose( (GDALDatasetH) poDataset);
 
   return;
@@ -408,6 +409,7 @@ void generateTexture(string fname, GLuint& tex, int bandnum, string& projection,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, texs);
+  glGenerateMipmap(GL_TEXTURE_2D);
   GDALClose( (GDALDatasetH) poDataset);
 
   return;
@@ -434,19 +436,19 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
   double          adfMinMax[2];
   int numbands = poDataset->GetRasterCount();
   cout << numbands << endl;
-  if(numbands != 4)
+  /*if(numbands != 4)
   {
     cerr << "NOT FOUR BANDS!!!" << endl;
     GDALClose( (GDALDatasetH) poDataset);
     return;
-  }
+  }*/
 
   // yay stack allocation -- replace with dynamic in the future
   unsigned char** data;
   unsigned char* packeddata;
 
   data = new unsigned char*[numbands];
-  packeddata = new unsigned char[numbands*width*height];
+  packeddata = new unsigned char[4*width*height];
 
   for (int i = 0; i < numbands; i++ )
   {
@@ -461,18 +463,34 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
 
   for(int i =0; i < width*height; i++)
   {
+    if(numbands == 4)
+    {
     packeddata[i*4] = data[0][i];
     packeddata[i*4+1] = data[1][i];
     packeddata[i*4+2] = data[2][i];
     packeddata[i*4+3] = data[3][i];
+    }
+    else if(numbands==3)
+    {
+    packeddata[i*4] = data[0][i];
+    packeddata[i*4+1] = data[1][i];
+    packeddata[i*4+2] = data[2][i];
+    packeddata[i*4+3] = 255;
+    }
   }
 
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  if(numbands == 4)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &packeddata[0]);
-
+  else if(numbands == 3)
+  {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &packeddata[0]);
+    //exit(0);
+  }
+  glGenerateMipmap(GL_TEXTURE_2D);
   // Clean up some allocated data
   delete []packeddata;
 

@@ -1,138 +1,42 @@
-#Tutorial 4: Projecting GIS Imagery onto a Terrain with Projective Mapping
+#Tutorial 5: Projecting GIS Imagery onto a Terrain with a Projector
 
 **Introduction**
 -----
-In this tutorial, I will be talking how to create to use projective mapping to place images onto the terrain we produced in tutorial 4. For this tutorial we will be using drycreek2.tif.
+In this tutorial, I will be talking how to create to use projective mapping to place images onto the terrain we produced in tutorial 2. For this tutorial we will be using drycreek2.tif which has been modified to make projecting onto the surface of this terrain easier by bringing it into a projection that does not require any estimation techniques. There is no new projection code code in this tutorial. The only thing new is that you will be learning how to place a projector into the correct space and how to make it the correct size to be projected onto the terrain.
 
-Drycreek2.tif was created with:
+Drycreek2.tif was created with and can be found in the data folder in this collection of tutorials:
 ```bash
 gdalwarp -t_srs epsg:26911 drycreek.tif drycreek2.tif # This brings Dry Creek into zone 11. 
 ```
 
-Required Readings
-* https://developer.nvidia.com/system/files/akamai/gamedev/docs/projective_texture_mapping.pdf
-
-Be Aware of
-* Deffered Shading
-* Alpha Blending
-
-**Projective Texture Mapping**
----
-The idea behind projective texture mapping is to produce a set of uvs that will be used for the purpose of projecting an image onto a surface. Projective texture mapping works very similar to the way to the main camera that is commonly used in OpenGL. Projective texture mapping makes use of its own projection and view matrixes like a main camera, except that everything is being projected into the world on some surface. For now we will refer to projective texture mapping in general terms as a projector.
-
-Our first goal is to understand how a projector has its own view and projection matrix with the addition of a scaling matrix that are essential to producing uvs that are projected onto the terrain (I will be calling the combination of these matrixes a texgen matrix). In the Nvidia paper it throws these two equations at the reader for developing the texgen matrix:
-
-**Coordinates are in view space**
-![eyelineartexgen.png](eyelineartexgen.png)
-
-**Coordinates are in object space**
-![objectlineartexgen.png](objectlineartexgen.png)
-
-Both of the following equations above are equivalent and are just demonstrating two different cases where you either have coordinates in object or view space. The first equation above simply reverts to the second case (make sure you understand the differences between view and object space). For the rest of this tutorial we will focus on the object space case. 
-
-The Nvidia paper specifies that one must use the following equation to transform a object space point into uv coordinates as follows:
-
-![texgen.png](texgen.png)
-
-The Vx-w components are your coordinates in object space, while T<sub>o</sub> is the texgen matrix produce in case two above. As you can see the only thing we need for a projector is its projection matrix, view matrix, scaling matrix, and of course we need some kind of image or data to project. 
-
-One question that may be entering your mind is about the coordinates produced on the right side of the above question or the uv coordinates we need for the projecting and the scaling matrix. The paper specifies that the s,t components are typically divided by q to bring them into a normalized range between 0 and 1 but while making some other considerations such as the projection and view matrix brings our final point into clip space where the window width and height are mapped to [-1/2,1/2],[-1/2,1/2]. The following tutorial does a good job of taking care of these considerations http://www.rastertek.com/dx11tut43.html by multiplying and adding by 1/2 to the produced clip space coordinates (after they have been divided by q). Unfortunately we don't need to that when the scaling matrix already does the dividing by q and multiplying and adding for us (I dare you to find how equivalent these two are (left as an exercise for the reader)). So Nvidia just did something equivalent for scaling and normaling the uvs into a [0,1] range. The point is we don't need to worry about dividing by q (or adding and multiplying 1/2) to s and t thanks to this scaling matrix.
-
-On to the code.
-**The Code**
-----
-How many things do we need to keep track for this projector we are creating to work. The answer is simple: the view matrix, projection matrix, scaling matrix, and the image or data being used for this projector. Here is what we are keeping track of:
-```c++
-up = glm::vec3(0, 0, -1); // Set our up to -z acis
-direction = glm::vec3(0, -1, 0); // this is will face the cam directly up
-position = glm::vec3(110, 0, 110);
-view = glm::lookAt( position, //Eye Position
-	                  position + direction, //Focus point
-	                  up); //Positive Y is up
-glm::mat4 projection = glm::ortho<float>(-1000, 1000, 1000, -1000, 0.1f, 10000.0f);  // orthographic projections are nice for demonstrating satellite images and data
-glm::mat4 scalingMatrix = glm::mat4(1/2,0,0,1/2,
-                                    0,1/2,0,1/2,
-                                    0,0,1/2,1/2,
-                                    0,0,0,1);
-gluint SomeImageOrData;
-```
-**With Deferred Shading**
-
-You will need to create a seperate framebuffer for the projectors.
-
-We now have enough information to put our projector somewhere and project imagery into the world assuming that we are using deffered shading, but it would be different with forward (more on this later). I will be assuming that all world positions, diffuse colors, and normal are stored into textures for the lighting phase of deffered shading. Given the texture with world positions and diffuse colors we can project a texture into the world. We will need to create a framebuffer that accumulates the results into one render target
-
-Here is the frag shader that we will be needed to show a texture being projected into the world:
-```glsl
-#version 330 
-uniform sampler2D gPositionMap; 
-uniform sampler2D gTextureMap; // the texture to be used for holding the projections
-uniform sampler2D gNormalMap; // not used
-
-uniform sampler2D proj_tex; // our texture to be projected
-
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 tex;
-
-// Thank you oglvdev
-uniform vec2 gScreenSize;
-vec2 CalcTexCoord()
-{
-    return gl_FragCoord.xy / gScreenSize;
-}
-
-// We want the render target location to be zero with one framebuffer.
-layout (location = 0) out vec4 TexOut; 
-
-void main()
-{
-  vec2 TexCoord = CalcTexCoord();
-
-  vec3 pos = texture(gPositionMap,TexCoord).xyz;
-  vec3 texmap = texture(gTextureMap,TexCoord).xyz;
-  
-  // calculate the tex gen matrix and apply it to the world position
-  vec4 test = (tex * projection * view * vec4(pos,1.0));
-  vec2 uv = test.xy;
-  if( test.w > 0 &&  uv.x >= 0 && uv.x <= 1 && uv.y >= 0 && uv.y <= 1 )
-  {
-    TexOut = vec4(texture(proj_tex,uv.xy).xyz,.8);
-  }
-  else
-  {
-    // discard anything not inside the uv rectangle
-    discard;
-  }
-}
-```
-
-**With Forward Shading**
-
-This is left as an exercise for the reader. The reader will find this to be easy with a small amount of objects, but with less objects it may be feasible. The reader would need to pass in all projector for each object that is being rendered.
-
+I will be assuming that you have done tutorial 4-1 and 4-2 and know about differed shading.
 
 **Creating two types of imagery.**
 -----
 
-We now know how to place a projector and to pick a projection to project an image onto the terrain. For the purposes of this tutorial, I will be introducing how to project a satellite image and raw floating pointing data.
+We now know how to place a projector and to pick a projection to project an image onto the terrain. For the purposes of this tutorial, I will be introducing how to project a satellite image and raw floating pointing data onto the terrain.
 
 **Satellite Imagery**
 
-In order to generate satellite imagery, we need to first open an image and get the bytes out of the image. All of which we will be using gdal for. Here is some code that will do that:
+In order to generate satellite imagery, we need to first open an image and get the bytes out of the image. All of which we will be using gdal for. Here is some code that will do that(along with comments that explain the inner working of the code):
 ```c++
 void generateImageTexture(string fname, GLuint& tex, string& projection,double& xorigin, double& yorigin, int& width, int& height, double& xres, double& yres)
 {
 
   GDALDataset *poDataset;
   GDALAllRegister();
+  
+  // We are loading a gdal dataset here:
   poDataset = (GDALDataset*) GDALOpen(fname.c_str(), GA_ReadOnly);
   if (poDataset == NULL)
   {
+    // Something went wrong here!
     cout << "OUCH!" << endl;
     //exit(0);
     return;
   }
+  
+  // Printing out the dimensions of our dataset set (width,height)
   cout << "Data size: " << GDALGetRasterXSize(poDataset) << " " << GDALGetRasterYSize(poDataset) << endl;
   width = GDALGetRasterXSize(poDataset);
   height = GDALGetRasterYSize(poDataset);
@@ -143,6 +47,8 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
   double          adfMinMax[2];
   int numbands = poDataset->GetRasterCount();
   cout << numbands << endl;
+  
+  // I wrote this code to only handle four bands.. where the four bands are red, green,blue,alpha
   if(numbands != 4)
   {
     cerr << "NOT FOUR BANDS!!!" << endl;
@@ -150,13 +56,14 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
     return;
   }
 
-  // yay stack allocation -- replace with dynamic in the future
-  unsigned char** data;
+  // yay stack allocation -- replace with dynamic in the future -- yep
+  unsigned char** data; 
   unsigned char* packeddata;
 
   data = new unsigned char*[numbands];
   packeddata = new unsigned char[numbands*width*height];
 
+  // iterate through the data and store it one chunk
   for (int i = 0; i < numbands; i++ )
   {
       data[i] = new unsigned char[width*height];
@@ -177,6 +84,7 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
     packeddata[i*4+3] = data[3][i];
   }
 
+  // generate a opengl texture
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -190,17 +98,26 @@ void generateImageTexture(string fname, GLuint& tex, string& projection,double& 
   {
     delete []data[i];
   }
+  
   delete []data;
+  
+  // get the projection of this satellite imagery
   projection = string(poDataset->GetProjectionRef());
+  
+  // two corners of the image
   double xright,ybottom;
+  
+  // get all of the corniers for this image and compute the average xres and yres.
+  // this is the function that is putting everything into utm .. this was part of an earlier tutorial
   ComputeGeoProperties(poDataset, width, height, xorigin, yorigin, xright, ybottom, xres, yres);
+  
   GDALClose( (GDALDatasetH) poDataset);
 
   return;
 }
 ```
 
-As you will see in the code, I get all four bytes of the satellite imagery data and push them into a OpenGL Texture 2D. The Satellite Imagery four bands are litterally red,green,blue, and alpha for this image. Passing this into the shaders should be enough to show something. This code also assumes that the satellite image only has four bands, so I am living it as an exercise for those who want to use higher quality landsat images.
+As you will see in the code, I get all four bytes of the satellite imagery data and push them into a OpenGL Texture 2D. The Satellite Imagery four bands are litterally red,green,blue, and alpha for this image. Passing this into the shaders should be enough to show something. This code also assumes that the satellite image only has four bands, so I am living it as an exercise for those who want to use higher quality landsat images that have more than four bands.
 
 **Floating Point Datasets**
 
@@ -321,7 +238,7 @@ Steps for applying a mask:
 float maskval = texture(masksampler,uv).r;
 
 if(maskval > 0 )
-colorout = mix(lowcolor,highcolor,normalizedvalue.a);
+colorout = vec4(mix(lowcolor,highcolor,normalizedvalue.a),alpha); // alpha is the opacity value from tutorial 4-2
 else
 discard; // or colorout = vec4(0,0,0,0); The point here is that we don't want to draw where there is no mask value. 
 ```
@@ -399,13 +316,14 @@ As you can see the perspective projection on the left that has a pyramid shape w
 
 	void SetDimensions(float width, float height)
 	{
+		// set the projectors projection... the projection window
 		projection = glm::ortho<float>(-width / 2.0f, width / 2.0f, height / 2.0f, -height / 2.0f, 0.1f, 10000.0f);
 	};
 	
 	void setToMainCoordinateSystem(OGRSpatialReference* main, glm::vec2 mainorigin)
 	{
 
-		// translate to main coordinate system
+		// translate to main coordinate system 
 		OGRCoordinateTransformation* transform;
 		if (main != NULL)
 		{
@@ -433,7 +351,7 @@ As you can see the perspective projection on the left that has a pyramid shape w
 		x = x - mainorigin.x;
 		y = mainorigin.y - y;
 		
-		// the projectors y is at 3000 or remotely above the terrain so that the frustrum will go through the terrain
+		// set the projectors position
 		position.x = x;
 		position.z = y;
 
@@ -441,7 +359,8 @@ As you can see the perspective projection on the left that has a pyramid shape w
 		cout << "projector position" << x << " " << y;
 		//exit(0);
 	};
-	
+
+// set the projector	
 void projector::render(glm::mat4& view2, glm::mat4& projection2)
 {
 	// remains the same as above
@@ -458,142 +377,16 @@ As you can see the process of placing the projector into the correct spot and ma
 
 **How to visualize everything correctly.**
 
-Steps for rendering (Deferred Shading):
+Steps for rendering (Deferred Shading -- Some review):
 
 1. Do Geometry Pass
-2. Do Projection Pass into projector framebuffer.
-3. Do Lighthing Pass
+2. Do Lighthing Pass
+3. Start Blending
+4. Draw Projectors
+5. End Blending
 
-The steps above are straight forward and need very little explanation. We want our projected result to blend with anything from the lighting pass. We need to make sure that the projected image will appear through the lighting and other projectors (they may overlap). The best way is to blend the output of the projectors into one texture (one way is to use discard in the shader or to use gl_blend(discard is easier).
+There is nothing magically here for visualizing just use the code for multiple projectors and you should see everything in the correct spot.
 
-```c++
-// switch to Multiple render targets
-// Set proper depth buffer
-// clear color to black.
-// use gbuffer fragment buffer 
-//geometry pass
-
-// use pbuffer fragment buffer
-glblendequation(GL_FUNC_ADD);
-glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
-
-// Projector pass -- use discard and glblend with another framebuffer -- make sure to clear it to black
-// render the projectors -- to blend them in case overlap make sure clear color is black
-
-// Switch to default buffer -- blend the light
-glBlendEquation(GL_FUNC_ADD);
-glBlendFunc(GL_ONE, GL_ONE);
-// Do lighting phase
-glDisable(GL_BLEND);
-```
-
-We need to step up a framebuffer that will contain our changes with each framebuffer projection.
-First lets setup the framebuffer and attach one render texture to contain the changes.
-Here is some code that contains this setup:
-
-```c++
-GLuint projtex;
-GLuint m_fbo;
-
-glGenFramebuffers(1, &m_fbo);
-glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-
-// Create the gbuffer textures
-glGenTextures(1, projtex);
-glGenTextures(1, &m_depthTexture);
-
-// bind the texture
-glBindTexture(GL_TEXTURE_2D, projtex);
-glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-// Lets store everything into a texture with rgba channels
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WindowWidth, WindowHeight, 0, GL_RGBA, GL_FLOAT, NULL);
-glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i+4, GL_TEXTURE_2D, m_textures[i], 0);
-
-
-// bind a dpeth buffer -- technically not needed 
-glBindTexture(GL_TEXTURE_2D, m_depthTexture);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, WindowWidth, WindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture, 0);
-
-GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT4 };
-glDrawBuffers(ARRAY_SIZE_IN_ELEMENTS(DrawBuffers), DrawBuffers);
-
-GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-if (Status != GL_FRAMEBUFFER_COMPLETE) {
-     //printf("FB error, status: 0x%x\n", Status);
-     return false;
-}
-
-// restore default FBO
-glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-```
-
-As you can see I am only binding one texture to this framebuffer, which means everything that will be render will go into this one texture. Within this texture we will need to blend all of the results of the projectors into this one framebuffer. 
-
-First we will need to setup up blending where we will blend based on the alpha values of the projectors so that we can control how well two projectors blend:
-```c++
-glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-glEnable(GL_BLEND);
-
-glBlendEquation(GL_FUNC_ADD);
-
-glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-
-// Render projectors
-
-// Can't forgot to disable blending afterwords
-glDisable(GL_BLEND);
-
-//Result default frame buffer  
-glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-// set render texture to your desired texture target    
-glActiveTexture(GL_TEXTURE0 + 4);
-glBindTexture(GL_TEXTURE_2D, projtex);
-```
-
-After the blending is enable now we can render all of the projectors but the key thing we need for these projectors are the positions of the verticies from the geometry pass in deffered shading ( Refer to ogldev for more details). The projectors will be rendered for the full screen or into a quad that is the same size of the screen.
-
-Rendering code for one projector:
-```c++
-// Set the texture we are rendering to one specific target.
-glActiveTexture(GL_TEXTURE0 + 5);
-glBindTexture(GL_TEXTURE_2D, tex);
-
-// if there is a mask tex enable it
-if(masktex)
-{
-   glActiveTexture(GL_TEXTURE0 + 6);
-   glBindTexture(GL_TEXTURE_2D,masktex);
-}
-
-Renderer.useProgram();
-// bind the buffer of our vbos
-Buffer.bindBuffer();
-
-Renderer.enableVertexAttribPointer("Position");
-Renderer.setGLVertexAttribPointer("Position", 2, GL_FLOAT, GL_FALSE, sizeof(float), 0);
-
-// enable three textures
-Renderer.setUniformInteger("gPositionMap", 0);
-Renderer.setUniformInteger("gTextureMap", 4); // the texture map that we have rendered into previously .. we need this for blending
-Renderer.setUniformInteger("proj_tex", 5); // the texture we are placing onto the terrain or some object
-Renderer.setUniformInteger("mask_tex",6); // the texture we are using to mask the projected texture
-
-float SCREEN_SIZE[2] = {(float)SCREEN_WIDTH, (float)SCREEN_HEIGHT};
-Renderer.setUniformFloatArray2("gScreenSize", 1, SCREEN_SIZE); // pass screen size to shaders
-Renderer.setUniformMatrix4x4("projection", projection);
-Renderer.setUniformMatrix4x4("view", view);
-Renderer.setUniformMatrix4x4("tex", Texgen); // pass scaling matrix to shaders
-
-Renderer.renderRaw(GL_TRIANGLES, 12); // Render a quad
-Renderer.disableVertexAttribPointer("Position"); // disable a vao.
-// Don't forgot to disable blending
-glDisable(GL_BLEND);
-```
 **Application Example**
 ----
 To run the example:
